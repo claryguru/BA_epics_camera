@@ -12,8 +12,14 @@ if __name__ == "__main__":
     ia = h.create() #ia: ImageAquirer Object
     ia.start()
 
-    print(ia.remote_device.node_map.DeviceTemperature.value)
-    print(ia.remote_device.node_map.Width.value)
+    ia.remote_device.node_map.PixelFormat.value = 'Mono14'
+    ia.remote_device.node_map.AcquisitionMode.value = 'SingleFrame'
+    ia.remote_device.node_map.ExposureMode.value = 'Timed'
+    ia.remote_device.node_map.ExposureTimeAbs.value = 20
+    ia.remote_device.node_map.TriggerMode.value = 'Off'
+    ia.remote_device.node_map.ExposureAuto.value = 'Off'
+    ia.remote_device.node_map.Width.value = ia.remote_device.node_map.WidthMax.value
+    ia.remote_device.node_map.Height.value = ia.remote_device.node_map.HeightMax.value
 
     with ia.fetch() as buffer: #ImageAcquirer.fetch() without a time-out value means the function call waits until a buffer is filled up with an image
         component = buffer.payload.components[0]
