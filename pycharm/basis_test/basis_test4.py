@@ -3,6 +3,22 @@ from softioc import softioc, builder, asyncio_dispatcher
 import asyncio
 from vimba import *
 
+class Camera:
+    def __init__(self):
+        # Create own objects from Classes
+            # choose way of image aquiring:
+        self.ia = ImageA(self)
+        #self.ia = ImageAquirerVimba()
+
+        self.data_a = DataAnalyzer(self)
+        self.epics = Epics(self)
+        #
+
+    def run(self, dispatcher):
+        asyncio.run_coroutine_threadsafe(self.ia.aquire(), dispatcher.loop)
+        asyncio.run_coroutine_threadsafe(self.data_a.analyze(), dispatcher.loop)
+        asyncio.run_coroutine_threadsafe(self.epics.run(), dispatcher.loop)
+
 class Epics:
     def __init__(self, data_a):
         builder.SetDeviceName("MY-DEVICE-PREFIX")
@@ -61,16 +77,12 @@ if __name__ == '__main__':
     # Create an asyncio dispatcher, the event loop is now running
     dispatcher = asyncio_dispatcher.AsyncioDispatcher()
 
-    ia = ImageA()
-    data_a = DataAnalyzer(ia)
-    epics = Epics(data_a)
+    cam = Camera()
 
     softioc.iocInit(dispatcher)
 
     # Start processes required to be run after iocInit
-    asyncio.run_coroutine_threadsafe(ia.aquire(), dispatcher.loop)
-    asyncio.run_coroutine_threadsafe(data_a.analyze(), dispatcher.loop)
-    asyncio.run_coroutine_threadsafe(epics.run(), dispatcher.loop)
+    cam.run()
 
 
     # Finally leave the IOC running with an interactive shell.
