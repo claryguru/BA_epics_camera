@@ -1,0 +1,480 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Browser &#8212; Phoebus 1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="PV Tree" href="../../pvtree/doc/index.html" />
+    <link rel="prev" title="Core Framework" href="../../../core/framework/doc/index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../pvtree/doc/index.html" title="PV Tree"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../../../core/framework/doc/index.html" title="Core Framework"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Phoebus 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../applications.html" accesskey="U">Applications</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Data Browser</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="data-browser">
+<h1>Data Browser<a class="headerlink" href="#data-browser" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The Data Browser is a trending tool. It can display the values
+of ‘live’ Process Variables (PVs) as well as historic data in a
+Stripchart-type plot over time.</p>
+<dl class="simple">
+<dt>Live Data</dt><dd><p>For each PV, the Data Browser collects ‘live’ samples from the
+control system and plots them over time. The size of the live sample
+buffer is configurable, as is the sample period.</p>
+</dd>
+<dt>Historic Data</dt><dd><p>The Data Browser queries archive data sources for historic
+samples to obtain data for time ranges ‘before’ the live sample
+buffer. You can configure one or more archive data source for each PV.</p>
+</dd>
+</dl>
+<a class="reference internal image-reference" href="../../../_images/databrowser.png"><img alt="../../../_images/databrowser.png" class="align-center" src="../../../_images/databrowser.png" style="width: 80%;" /></a>
+</div>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>To create a new plot:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Invoke the menu <code class="docutils literal notranslate"><span class="pre">Applications</span></code>, <code class="docutils literal notranslate"><span class="pre">Display</span></code>, <img alt="databrowser" src="../../../_images/icon_databrowser.png" /> <code class="docutils literal notranslate"><span class="pre">Data</span> <span class="pre">Browser</span></code>.</p></li>
+<li><p>Open the plot’s context menu by right-clicking into the plot,
+invoke <img alt="add" src="../../../_images/icon_add.png" /> <code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">PV</span></code>.</p></li>
+<li><p>Enter the desired PV name, press “OK”.</p></li>
+</ol>
+</div></blockquote>
+<p>A plot may be saved to disk by selecting <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">Snapshot</span></code> context menu item, or by using keyboard shortcut
+CTRL + S (CMD + S on Mac OS). The default file extension for plot files is .plt.</p>
+<p>Note however that the Data Browser may be launched using an existing plot file which may be read-only (e.g. a
+remote file accessed over HTTP). In such cases a save operation will offer the user the option to save to a new file.</p>
+</div>
+<div class="section" id="toolbar">
+<h2>Toolbar<a class="headerlink" href="#toolbar" title="Permalink to this headline">¶</a></h2>
+<p>Open the plot’s tool bar by right-clicking into the plot,
+then invoke <img alt="toolbar" src="../../../_images/icon_toolbar.png" /> <code class="docutils literal notranslate"><span class="pre">Show</span> <span class="pre">Toolbar</span></code>.</p>
+<div class="section" id="stagger">
+<h3>Stagger<a class="headerlink" href="#stagger" title="Permalink to this headline">¶</a></h3>
+<p>The <img alt="stagger" src="../../../_images/icon_stagger.png" /> <code class="docutils literal notranslate"><span class="pre">Stagger</span></code> button will set the range of each value axis
+such that the traces on different axes don’t overlap.
+In other words, all the traces of the first value axis will appear on top,
+followed by the traces on the second axis below,
+the traces on the third axis below the second axis and so on.</p>
+</div>
+<div class="section" id="zooming">
+<h3>Zooming<a class="headerlink" href="#zooming" title="Permalink to this headline">¶</a></h3>
+<p>The buttons to <img alt="zoom_in" src="../../../_images/icon_zoom_in.png" /> <code class="docutils literal notranslate"><span class="pre">Zoom</span> <span class="pre">In</span></code> and <img alt="zoom_out" src="../../../_images/icon_zoom_out.png" /> <code class="docutils literal notranslate"><span class="pre">Zoom</span> <span class="pre">Out</span></code>
+activate the respective zoom mode.</p>
+<p>While in <code class="docutils literal notranslate"><span class="pre">Zoom</span> <span class="pre">In</span></code> mode,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>pressing the mouse on a start point in the time axis,
+then dragging to an end point in the time axis
+and finally releasing the mouse button will zoom into the
+selected time region.</p></li>
+<li><p>similarly selecting a start..end range on a value axis
+will zoom into the selected range on that value axis.</p></li>
+<li><p>dragging a rectangle inside the plot will zoom into the selected region</p></li>
+</ul>
+</div></blockquote>
+<p>While in <code class="docutils literal notranslate"><span class="pre">Zoom</span> <span class="pre">Out</span></code> mode,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>clicking the mouse on the time axis
+zooms out of that point in time.</p></li>
+<li><p>clicking the mouse on a value axis
+zooms out of that value on that axis.</p></li>
+<li><p>clicking the mouse inside the plot
+zooms out of that point on the
+time axis and all value axes.</p></li>
+</ul>
+</div></blockquote>
+<p><code class="docutils literal notranslate"><span class="pre">Zoom</span> <span class="pre">In</span></code> can also be activated within the plot by simply holding
+the <code class="docutils literal notranslate"><span class="pre">Control</span></code> key, then dragging a range on the time axis,
+value axis or within the plot.</p>
+<p>Finally, while the mouse pointer is within an axis or the plot,
+you can hold the <code class="docutils literal notranslate"><span class="pre">Control</span></code> key and then use the scroll wheel
+to zoom in or out of an axis or the plot.</p>
+</div>
+</div>
+<div class="section" id="property-panel">
+<h2>Property Panel<a class="headerlink" href="#property-panel" title="Permalink to this headline">¶</a></h2>
+<p>Open the plot’s property panel by right-clicking into the plot,
+then invoke <img alt="properties" src="../../../_images/icon_properties.png" /> <code class="docutils literal notranslate"><span class="pre">Open</span> <span class="pre">Properties</span> <span class="pre">Panel</span></code>.</p>
+<p>The panel allows you to configure each trace, the time axis, the value axes,
+and miscellaneous settings. Changes performed in this panel will be persisted when the plot (.plt) file is saved.</p>
+</div>
+<div class="section" id="runtime-properties-dialog">
+<h2>Runtime Properties Dialog<a class="headerlink" href="#runtime-properties-dialog" title="Permalink to this headline">¶</a></h2>
+<p>If enabled through the preference setting <code class="docutils literal notranslate"><span class="pre">org.csstudio.trends.databrowser3/config_dialog_supported</span></code>, plot settings may
+also be changed using the runtime properties dialog. To launch the dialog, click on the plot area and then press letter “o”:</p>
+<a class="reference internal image-reference" href="../../../_images/runtime_properties_dialog.png"><img alt="../../../_images/runtime_properties_dialog.png" src="../../../_images/runtime_properties_dialog.png" style="width: 400px;" /></a>
+<p><strong>NOTE</strong>: changes to the plot performed from the runtime properties dialog will not update the data model constructed
+from the underlying plot file. Consequently such changes are <strong>not</strong> persisted when the plot file is saved. To make
+sure plot properties are saved one must perform the changes in the property panel.</p>
+<div class="section" id="live-data-sampling">
+<h3>Live Data Sampling<a class="headerlink" href="#live-data-sampling" title="Permalink to this headline">¶</a></h3>
+<p>By default, traces will use a <code class="docutils literal notranslate"><span class="pre">Scan</span> <span class="pre">Period</span></code> of 0 seconds, which means
+we keep every sample received from the control system.
+To avoid running out of memory, the live data buffer has a limited
+<code class="docutils literal notranslate"><span class="pre">Buffer</span> <span class="pre">Size</span></code>.
+For example, if your channel updates every 1 second, and the buffer size
+is set to 5000, the data browser will keep roughly the last 1 hour and 20 minutes
+of live data in memory. Older samples are dropped.</p>
+<p>To keep a longer time span of live data in memory, you can increase the <code class="docutils literal notranslate"><span class="pre">Buffer</span> <span class="pre">Size</span></code>,
+which obviously results in using more memory. Alternatively, you can set the <code class="docutils literal notranslate"><span class="pre">Scan</span> <span class="pre">Period</span></code>
+to for example 5 seconds. This will ignore the update rate of the channel and simply take
+a sample every 5 seconds, allowing a buffer of 5000 samples to hold almost 7 hours of data.</p>
+</div>
+<div class="section" id="optimized-vs-raw-archive-data-request">
+<h3>Optimized vs. Raw Archive Data Request<a class="headerlink" href="#optimized-vs-raw-archive-data-request" title="Permalink to this headline">¶</a></h3>
+<p>By default, a trace will request <code class="docutils literal notranslate"><span class="pre">Optimized</span></code> data from an archive.
+How this is accomplished depends on the implementation of the underlying
+archive system. The fundamental idea is that the data browser
+requests a reduced (optimized) set of min/max/average samples.
+The number of optimized samples is based on the width of the screen in pixels.
+When using ‘Area’ traces as shown below, the average values are
+plotted as a line, and the min/max outline is displayed as a
+light-colored area. This not only reduces the amount of data compared
+to plotting every single raw sample from the archive. In addition it
+makes it obvious if a value was fairly stable over time, or if there
+was a lot of movement in the data around the average.
+Some archive data sources may also provide the standard deviation,
+which will be represented as a pair of thinner lines,
+one above and one below the thicker average line.</p>
+<a class="reference internal image-reference" href="../../../_images/optimized.png"><img alt="../../../_images/optimized.png" class="align-center" src="../../../_images/optimized.png" style="width: 80%;" /></a>
+<p>When there are fewer ‘raw’ data points than requested,
+the ‘Optimized’ algorithm falls back to returning the raw data, meaning:
+When you zoom into the data far enough, you will eventually get raw data.</p>
+<p>You may use the <code class="docutils literal notranslate"><span class="pre">Request</span></code> option ofproperty  a trace in the property panel
+to always request <code class="docutils literal notranslate"><span class="pre">Raw</span></code> data.
+As a result, each original sample is fetched from the archive.
+The screenshot below shows the result.
+Not only is this usually a larger amount of samples, taking longer to receive and then
+to plot. It also uses more memory, and when you try to look at raw
+data for a long time range your computer will eventually ran out of
+memory. The ‘Raw Data’ requests should therefore only be used when
+necessary because of shortcomings in the ‘Optimized’ algorithm.</p>
+<a class="reference internal image-reference" href="../../../_images/raw.png"><img alt="../../../_images/raw.png" class="align-center" src="../../../_images/raw.png" style="width: 80%;" /></a>
+</div>
+<div class="section" id="trace-types">
+<h3>Trace Types<a class="headerlink" href="#trace-types" title="Permalink to this headline">¶</a></h3>
+<p>Ideally, control system data is only updated when it changes by
+a significant amount. EPICS records actually offer separate update
+thresholds for live and archived data, so that live displays can
+receive updates for small changes at the noise level of a signal,
+while historic data is only written for changes well above the noise
+level.</p>
+<p>When the Data Browser receives either live of historic samples,
+we assume that those represent significant changes in the value.</p>
+<p>The “Area” and “Single Line” Trace Types,
+shown to the left in the following image,
+use a stair-step type of line that holds the value of the last sample
+until a new sample arrives.
+This reflects our assumption that the signal has not significantly changed
+until we receive a new sample.</p>
+<blockquote>
+<div><img alt="../../../_images/stair.png" src="../../../_images/stair.png" />
+<img alt="../../../_images/direct.png" src="../../../_images/direct.png" />
+</div></blockquote>
+<p>The alternate “Area (direct)” and “Single Line (direct)” Trace Types,
+shown to the right,
+draw a direct line between samples, suggesting a linear change
+of the process variable between known samples.</p>
+</div>
+</div>
+<div class="section" id="exporting-data">
+<h2>Exporting Data<a class="headerlink" href="#exporting-data" title="Permalink to this headline">¶</a></h2>
+<p>Use the “Export” panel to write data into files suitable
+for spreadsheet programs or Matlab.
+Open the export panel by right-clicking into the plot,
+then invoke <img alt="export" src="../../../_images/icon_export.png" /> <code class="docutils literal notranslate"><span class="pre">Open</span> <span class="pre">Data</span> <span class="pre">Export</span> <span class="pre">Panel</span></code>.</p>
+<dl>
+<dt>Time Range</dt><dd><p>By default, the export will use the time range from the plot,
+but you can export data for a different time range.</p>
+</dd>
+<dt>Source Options</dt><dd><p>By default, the export will fetch raw data from the archive,
+not the optimized, reduced min/max/average data that is displayed in the plot.</p>
+<p>You can modify the time range of the export to differ from the range of the plot,
+and also select to export either the exact data that is displayed in the
+plot, or request optimized data with a different number of “bins” from
+the archive.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Plot</span></code>: The exact samples currently displayed in the plot
+will be exported.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Raw</span> <span class="pre">Archived</span> <span class="pre">Data</span></code>: The exported data will contain data that
+is requested from the archive without modifications.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Optimized</span> <span class="pre">Archived</span> <span class="pre">Data</span></code>: To reduce the number of exported
+samples, optimized data is requested from the archive. You specify
+the number of desired samples, and the export will then request
+roughly this number of averaged samples from the archive data source.
+For example, when requesting 800 optimized samples, the
+start..end time range is split into 800 “bins”. The the minimum,
+maximum and average value of the raw samples within each bin is then
+exported.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Linear</span> <span class="pre">Interpolation</span></code>: As an alternative way to reduce the
+number of exported samples, the exported samples are computed via
+linear interpolation from the raw data. You specify the interpolation
+interval in hours, minutes and seconds, for example 00:10:00 to
+obtain one sample every 10 minutes.</p>
+</dd>
+<dt>Format Options</dt><dd><p>The format of the exported file defaults to a spreadsheet
+suitable for import into most spreadsheet programs. You can modify
+these settings:</p>
+<p><code class="docutils literal notranslate"><span class="pre">Tabular</span></code>: Instead of a table that lists the samples for all
+channels, you can export the samples for each channel separately.</p>
+<p><code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">with</span> <span class="pre">error</span> <span class="pre">columns</span></code>: The min…max range of optimized data
+is by default exported as “error” columns, suitable for an error-bar
+display.</p>
+<p><code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">with</span> <span class="pre">Severity/Status</span></code>: The Severity and Status of each
+sample is by default exported, but you can omit it if not needed.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Default</span> <span class="pre">format</span></code>: The number of decimal digits will be
+obtained from the data source.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Decimal</span> <span class="pre">format</span></code>: You specify the number of decimal digits.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Exponential</span> <span class="pre">notation</span></code>: Use exponential notation, where you
+again specify the number of decimal digits.</p>
+</dd>
+</dl>
+<div class="section" id="excel-spreadsheets">
+<h3>Excel Spreadsheets<a class="headerlink" href="#excel-spreadsheets" title="Permalink to this headline">¶</a></h3>
+<p>The exported data files are in a text format with TAB-delimited
+columns suitable for import into spreadsheet programs like Microsoft
+Excel.</p>
+<p>Assume you chose a filename of “test.dat” on your Desktop,
+follow these steps for import into Excel:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>In Excel, use File/Open to open the file “test.dat”.
+You might have to select <code class="docutils literal notranslate"><span class="pre">Files</span> <span class="pre">of</span> <span class="pre">type:</span> <span class="pre">All</span> <span class="pre">Files</span> <span class="pre">(*.*)</span></code> in the file
+“Open” dialog to do this.</p></li>
+<li><p>A “Text Import Wizard” should appear, and the default
+settings should already be set to</p>
+<ul>
+<li><p>“Delimited - Characters such as … tabs …”</p></li>
+<li><p>“Delimiters: Tab”</p></li>
+</ul>
+</li>
+<li><p>Even though the time stamp column contains the full date and time,
+Excel will only display time down to minutes,
+omitting the seconds or microseconds.
+Fix this by clicking on the “A” table header, i.e. selecting the whole first column;
+right-click to get the “Format Cells…” dialog, and enter a “Custom”
+format: <code class="docutils literal notranslate"><span class="pre">yyyy/m/d</span> <span class="pre">h:mm:ss.000</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>For plots, the “X/Y scatter” plot type using time as the X axis
+and the value column for the Y axis tends to work best.</p>
+<p>Note that Excel is limited to about 65000 lines. If your data
+file includes more lines, those will be lost in the import. You can
+work around this by exporting a smaller time range into separate
+files, or by exporting averaged data.</p>
+<p>The value columns for averaged data will contain text like “5 [0… 10]”
+to indicate that the average value for that time was 5, with
+a minimum/maximum range of 0 to 10. To perform computations in excel,
+it might be useful to select the column and perform a text replacement
+of “[*]” with “” (nothing) to delete the min/max info.</p>
+<p>When performing computations on the data, values marked “#N/A”
+which have non numerical value because they represent a status or
+error should be ignored by Excel.</p>
+</div>
+<div class="section" id="openoffice-org-libreoffice-calc-spreadsheets">
+<h3>OpenOffice.org/LibreOffice Calc Spreadsheets<a class="headerlink" href="#openoffice-org-libreoffice-calc-spreadsheets" title="Permalink to this headline">¶</a></h3>
+<p>As long as the exported data file has a “.csv” suffix,
+OpenOffice.org/LibreOffice should open the file with an “import”
+dialog similar to MS Excel, where you select “tab” delimited columns
+as explained above.</p>
+<p>File names ending in “.dat”, “.txt” etc. might only open in the
+OpenOffice.org/LibreOffice Writer (word processor), so you have to use
+the correct file suffix.</p>
+</div>
+<div class="section" id="matlab">
+<h3>Matlab<a class="headerlink" href="#matlab" title="Permalink to this headline">¶</a></h3>
+<p>The Matlab export can use two different file formats.
+To create binary Matlab data files, use a file name ending in <code class="docutils literal notranslate"><span class="pre">.mat</span></code>.
+Matlab text files are created when the file name ends in <code class="docutils literal notranslate"><span class="pre">.m</span></code>.</p>
+<p>The binary data file like “example.mat” is suitable for loading
+into Matlab 5 and newer like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>load /path/to/the/example.mat
+</pre></div>
+</div>
+<p>In your Matlab workspace you should then find structures named
+“channel0”, “channel1”, …, one for each channel that was loaded from
+the file. Each structure has the following elements:</p>
+<p><code class="docutils literal notranslate"><span class="pre">name</span></code>: Channel name</p>
+<p><code class="docutils literal notranslate"><span class="pre">time</span></code>: Time stamps</p>
+<p><code class="docutils literal notranslate"><span class="pre">value</span></code>: Numeric value</p>
+<p><code class="docutils literal notranslate"><span class="pre">severity</span></code>: Severity</p>
+<p>The time stamps are saved as text by default. In reasonable modern versions
+of Matlab you best convert them to Matlab serial date numbers, which
+you can then for example plot over time like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>channel0.date = datenum(channel0.time, &#39;yyyy-mm-dd HH:MM:SS.FFF&#39;);
+plot(channel0.date, channel0.value);
+datetick(&#39;x&#39;,0);
+title(channel0.name);
+</pre></div>
+</div>
+<p>If user ticks ‘Use UNIX timestamp…’ in the export tab, timestamps will be exported
+as UNIX timestamp in ms, i.e. as a 64 bit unsigned integer.</p>
+<p>The Matlab text files like “example.m” are suitable for loading (executing)
+in Matlab R2006b or newer, creating one ‘timeseries’
+object per trace. To load it into Matlab, you execute the file like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>cd /path/to/the/file
+example
+</pre></div>
+</div>
+<p>Matlab will then execute the commands in the file which define
+the data in the Matlab workspace and also plot it. With Matlab
+releases older than R2006b you will have to edit the generated file to
+suit your needs, for example use simply <code class="docutils literal notranslate"><span class="pre">plot(v)</span></code> to show the values.</p>
+</div>
+<div class="section" id="command-line-export-options">
+<h3>Command Line Export Options<a class="headerlink" href="#command-line-export-options" title="Permalink to this headline">¶</a></h3>
+<p>The export functionality can also be invoked from the command line,
+without using the graphical user interface.
+This can be convenient when regularly exporting data for several channels.</p>
+<p>To see available options, run phoebus like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>phoebus -main org.phoebus.archive.Export -help
+
+Usage: -main org.phoebus.archive.Export [options]
+
+Export archived data into files
+
+General command-line options:
+
+-help                                    -  This text
+-settings settings.xml                   -  Import settings from file, either exported XML or property file format
+
+Archive Information options:
+-list [pattern]                          -  List channel names, with optional pattern (&#39;.&#39;, &#39;*&#39;)
+
+Data Export options:
+-start &#39;2019-01-02 08:00:00&#39;             -  Start time
+-end &#39;2019-02-03 16:15:20&#39;               -  End time (defaults to &#39;now&#39;)
+-bin bin_count                           -  Export &#39;optimized&#39; data for given bin count
+-linear HH:MM:SS                         -  Export linearly extrapolated data for time intervals
+-decimal precision                       -  Decimal format with given precision
+-exponential precision                   -  Exponential format with given precision
+-nostate                                 -  Do not include status/severity in tab-separated file
+-unixTimeStamp                           -  Use UNIX timestamp (in ms) instead of formatted date/time string
+-export /path/to/file channel &lt;channels&gt; -  Export data for one or more channels into file
+
+File names ending in *.m or *.mat generate Matlab files.
+All other file name endings create tab-separated data files.
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Data Browser</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li><a class="reference internal" href="#toolbar">Toolbar</a><ul>
+<li><a class="reference internal" href="#stagger">Stagger</a></li>
+<li><a class="reference internal" href="#zooming">Zooming</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#property-panel">Property Panel</a></li>
+<li><a class="reference internal" href="#runtime-properties-dialog">Runtime Properties Dialog</a><ul>
+<li><a class="reference internal" href="#live-data-sampling">Live Data Sampling</a></li>
+<li><a class="reference internal" href="#optimized-vs-raw-archive-data-request">Optimized vs. Raw Archive Data Request</a></li>
+<li><a class="reference internal" href="#trace-types">Trace Types</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#exporting-data">Exporting Data</a><ul>
+<li><a class="reference internal" href="#excel-spreadsheets">Excel Spreadsheets</a></li>
+<li><a class="reference internal" href="#openoffice-org-libreoffice-calc-spreadsheets">OpenOffice.org/LibreOffice Calc Spreadsheets</a></li>
+<li><a class="reference internal" href="#matlab">Matlab</a></li>
+<li><a class="reference internal" href="#command-line-export-options">Command Line Export Options</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../../../core/framework/doc/index.html"
+                        title="previous chapter">Core Framework</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../../pvtree/doc/index.html"
+                        title="next chapter">PV Tree</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/app/databrowser/doc/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../pvtree/doc/index.html" title="PV Tree"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../../../core/framework/doc/index.html" title="Core Framework"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Phoebus 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../applications.html" >Applications</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Data Browser</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Phoebus Developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>
