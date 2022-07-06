@@ -154,8 +154,8 @@ class FitArea:
 
 
 class Gaussmodel:
-    def __init__(self, fit_area):
-        self.sampled = False
+    def __init__(self, sampled, fit_area):
+        self.sampled = sampled
         self.z_values_in = fit_area.data.flatten()
         edge_x = fit_area.edge[1]
         edge_y = fit_area.edge[0]
@@ -241,17 +241,42 @@ class Gaussmodel:
 
 
 class DataAnalyzer:
-    def __init__(self, cam_dat_eps, init_dict = None):
-        #default values (same default values as in epics interface)
-        # falls noch weiter params festgelegt in init_dict diese ändern
+    def __init__(self, cam_dat_eps, init_dict=None):
+        self.control_params = self.load_control_params(init_dict)
+        #init values (same default values as in epics interface)
        
         self.ia = cam_dat_eps.ia #ImageAquirer('D:\\HZB\\Camera_Data\\test_roi\\')
         self.im = Image(self.ia)
-        self.roi = Roi(800, 1250, 600, 900, self.im)
-        self.fit_area = FitArea(self.roi, self.im, 0.5, 708)
-        self.g_model = Gaussmodel(self.fit_area)
+        self.roi = Roi(self.control_params['roi_x_start'], self.control_params['roi_x_stop'],
+                       self.control_params['roi_y_start'], self.control_params['roi_y_stop'], self.im)
+        self.fit_area = FitArea(self.roi, self.im, self.control_params['factor'],
+                                self.control_params['threshold'], self.control_params['median_flt'])
+        self.g_model = Gaussmodel(self.control_params['sampled'], self.fit_area)
         self.params = self.g_model.get_params()
-        print("params berechnet ", self.params)
+        print("first params berechnet ", self.params)
+
+    def load_control_params(self, init_dict):
+        default_control_param_values = \
+                {'roi_x_start': 800, #0
+                'roi_x_stop': 1250, #self.im.edge[1]
+                'roi_y_start': 600, #0
+                'roi_y_stop': 900, #self.im.edge[0]
+                'factor': 0.5,
+                'threshold': 708, #how to calculate threshold?
+                'median_flt': True,
+                'sampled': 0}
+
+        if init_dict:
+            if ('control_params_values' in init_dict) and (len(init_dict['control_params_values']) == 8):
+                return init_dict['control_params_values']
+            else: return default_control_param_values
+        else: return default_control_param_values
+
+    def get_init_control_params(self):
+        return self.control_params
+
+    def get_data_a_settings(self):
+        return{'control_params_values': self.control_params}
 
     async def analyze(self):
         while True:
@@ -259,7 +284,7 @@ class DataAnalyzer:
             self.roi.update(self.im)
             self.fit_area.update(self.roi, self.im)
             self.g_model.update(self.fit_area)
-            self.params= self.g_model.get_params()
+            self.params = self.g_model.get_params()
             print("params berechnet ", self.params)
             await asyncio.sleep(2)
 
@@ -279,8 +304,10 @@ class DataAnalyzer:
         elif area == 'g_model':
             self.fit_area.change_by_user(ctr_param_name, value)
         else:
-            ("There is no such area to update")
+            print("There is no such area to update")
 
+        #update for later use
+        self.control_params[ctr_param_name] = value
 
     def show(self):
         print("im")
@@ -292,11 +319,27 @@ class DataAnalyzer:
         print("model")
         self.g_model.show()
 
-if __name__ == '__main__':
-    ia = ImageAquirerFile('D:\\HZB\\Camera_Data\\mls13\\', 200)
-    data_analyzer = DataAnalyzer(ia)
-    data_analyzer.show()
 
-    for i in range(0, 10):
-        ia.aquire_sync()
-        data_analyzer.analyze_sync()
+
+
+if __name__ == '__main__':
+    example_init = {'roi_x_start': 800,
+                'roi_x_stop': 1250,
+                'roi_y_start': 600,
+                'roi_y_stop': 900,
+                'factor': 0.5,
+                'threshold': 708,
+                'median_flt': 1,
+                'sampled': 0}
+
+    class fake_CamDatEps:
+        def __init__(self):
+            self.ia = ImageAquirerFile('D:\\HZB\\Camera_Data\\mls13\\', 200)
+            self.data_analyzer = DataAnalyzer(self, example_init)
+            self.data_analyzer.show()
+
+            for i in range(0, 10):
+                self.ia.aquire_sync()
+                self.data_analyzer.analyze_sync()
+
+    f_camdatep = fake_CamDatEps()

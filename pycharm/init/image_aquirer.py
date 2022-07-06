@@ -3,7 +3,7 @@ from vimba import *
 import numpy as np
 
 class ImageAquirerInterface:
-    def set_up(self):
+    def get_ia_settings(self):
         pass
 
     def get_image(self):
@@ -15,17 +15,21 @@ class ImageAquirerInterface:
 
 
 class ImageAquirerFile(ImageAquirerInterface):
-    def __init__(self, file_path, max_index):
+    def __init__(self, file_path, max_index, init_dict=None):
         self.index = 1
         self.file_path = file_path
         self.image = self.load_im()
         self.max_index = max_index
 
-    def set_up(self):
-        pass
+        if init_dict:
+            print("init cam from dict")
+            self.init_dict = init_dict
 
     def get_image(self):
         return self.image
+
+    def get_ia_settings(self):
+        return self.init_dict
 
     def load_im(self):
         filename = self.file_path + str(self.index) + 'test.npy'
@@ -51,30 +55,81 @@ class ImageAquirerFile(ImageAquirerInterface):
 
 
 class ImageAquirerVimba(ImageAquirerInterface):
-    def __init__(self, init_dict = None):
-        #
-        self.cam_id = None
+    def __init__(self, init_dict=None):
         self.image = None
+        self.cam_id = ""
+        self.feature_dict = {}
 
-    def set_up(self):
-        pass
+        if init_dict:
+            if 'cam_id' in init_dict:
+                self.cam_id = init_dict['cam_id']
+            if 'features' in init_dict:
+                self.feature_dict = init_dict['features']
+
+        #load first image with right settings
+        self.get_frame()
+
+    def get_image(self):
+        return self.image
+
+    def get_ia_settings(self):
+        settings = {}
+        if self.cam_id:
+            settings['cam_id'] = self.cam_id
+        if self.feature_dict:
+            settings['features'] = self.feature_dict
+
+    def get_camera(self):
+        with Vimba.get_instance() as vimba:
+            if self.cam_id:
+                try:
+                    return vimba.get_camera_by_id(self.cam_id)
+                except VimbaCameraError:
+                    print('Failed to access Camera', self.cam_id)
+
+            else:
+                cams = vimba.get_all_cameras()
+                if not cams:
+                    print('No Cameras accessible')
+                return cams[0]
+
+    def set_up(self, cam):
+        for feature, value in self.feature_dict.items():
+            feat = cam.get_feature_by_name(feature)
+            feat.set(value)
+            print("feature set to", feat)
+
+    def get_frame(self):
+        with Vimba.get_instance():
+            with self.get_camera() as cam:
+                print("Camera has been opened")
+
+                self.set_up(cam)
+                self.image = cam.get_frame()
+                print("one image loaded")
 
     async def aquire(self):
-        print("hi")
-        with Vimba.get_instance() as vimba:
-            cams = vimba.get_all_cameras()
-            print(cams)
-            if len(cams) > 0:
-                with cams[0] as cam:
-                    cam.ExposureAuto = 'On'
-                    while True:
-                        frame = cam.get_frame()
-                        self.index += 1
-                        print('Got {} {}'.format(frame, self.index), flush=True)
-                        await asyncio.sleep(0)
-            else:
-                print("no camera detected")
-                await asyncio.sleep(0)
+        with Vimba.get_instance():
+            with self.get_camera() as cam:
+                print("Camera has been opened")
+
+                self.set_up(cam)
+                print("Camera set up")
+
+                while True:
+                    self.image = cam.get_frame()
+                    print("new image aquired")
+                    await asyncio.sleep(0)
+
+
 
 if __name__ == '__main__':
+    #trying out ImageAquirerFile
     ia = ImageAquirerFile('D:\\HZB\\Camera_Data\\mls13\\', 200)
+
+    init_dict_example = \
+        {"features": {"ExposureAuto": "Off"},
+         "cam_id": "DEV_000F31024A32"}
+
+    #trying ImageAquirerVimba
+    ia_cam = ImageAquirerVimba(init_dict_example)
