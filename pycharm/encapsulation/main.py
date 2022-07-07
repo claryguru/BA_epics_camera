@@ -17,11 +17,11 @@ class CamDatEps:
 
         # Create own objects from Classes
             # choose way of image aquiring:
-        self.ia = ImageAquirerFile('D:\\HZB\\Camera_Data\\mls13\\', 200, ia_init)
+        self.__ia = ImageAquirerFile('D:\\HZB\\Camera_Data\\mls13\\', 200, ia_init)
         #self.ia = ImageAquirerVimba(ia_init)
 
-        self.data_a = DataAnalyzer(self, data_a_init)
-        self.epics = Epics(self, self.data_a.get_init_control_params(), epics_init)
+        self.__data_a = DataAnalyzer(self, data_a_init)
+        self.__epics = Epics(self, self.__data_a.get_init_control_params(), epics_init)
 
     def load_cam_dat_ep(self, init_dict=None):
         ia_init, data_a_init, epics_init = None, None, None
@@ -35,25 +35,28 @@ class CamDatEps:
         return ia_init, data_a_init, epics_init
 
     def get_cam_dat_ep_settings(self):
-        settings = {'camera': self.ia.get_ia_settings(),
-                    'data_a': self.data_a.get_data_a_settings(),
-                    'epics': self.epics.get_epics_settings()}
+        settings = {'camera': self.__ia.get_ia_settings(),
+                    'data_a': self.__data_a.get_data_a_settings(),
+                    'epics': self.__epics.get_epics_settings()}
         return settings
 
     def on_control_params_update(self, area, control_param_name, value):
-        self.data_a.change_by_user(area, control_param_name, value)
+        self.__data_a.change_by_user(area, control_param_name, value)
+
+    def get_image(self):
+        return self.__ia.get_image()
 
     def get_current_params(self):
-        return self.data_a.params
+        return self.__data_a.params
 
     async def analyze_and_run(self):
         while True:
-            self.data_a.analyze_sync()
-            self.epics.run_sync()
+            self.__data_a.analyze_sync()
+            self.__epics.run_sync()
             await asyncio.sleep(2)
 
     def run(self, dispatcher):
-        asyncio.run_coroutine_threadsafe(self.ia.aquire(), dispatcher.loop)
+        asyncio.run_coroutine_threadsafe(self.__ia.aquire(), dispatcher.loop)
         asyncio.run_coroutine_threadsafe(self.analyze_and_run(), dispatcher.loop)
 
 

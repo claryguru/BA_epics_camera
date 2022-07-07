@@ -35,8 +35,8 @@
             "center_y": "AI_CENTER_Y",
             "sigma_x": "AI_SIGMA_X",
             "sigma_y": "AI_SIGMA_Y",
-            "rotation": "ROTATION",
-            "offset": "OFFSET"
+            "rotation": "AI_ROTATION",
+            "offset": "AI_OFFSET"
         }
     }
 }

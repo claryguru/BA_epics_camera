@@ -2,7 +2,7 @@ import asyncio
 from vimba import *
 import numpy as np
 
-class ImageAquirerInterface:
+class ImageAquirer:
     def get_ia_settings(self):
         pass
 
@@ -14,7 +14,7 @@ class ImageAquirerInterface:
 
 
 
-class ImageAquirerFile(ImageAquirerInterface):
+class ImageAquirerFile(ImageAquirer):
     def __init__(self, file_path, max_index, init_dict=None):
         self.index = 1
         self.file_path = file_path
@@ -58,7 +58,7 @@ class ImageAquirerFile(ImageAquirerInterface):
         await asyncio.sleep(0)
 
 
-class ImageAquirerVimba(ImageAquirerInterface):
+class ImageAquirerVimba(ImageAquirer):
     def __init__(self, init_dict=None):
         self.image = None
         self.cam_id = ""

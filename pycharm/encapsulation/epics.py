@@ -58,7 +58,9 @@ class Epics:
 
         # Boilerplate get the IOC started
         builder.LoadDatabase()
+
         self.cam_dat_eps = cam_dat_eps
+        print("acces da", self.cam_dat_eps._CamDatEps__data_a.im.edge)
 
         #settings saved for later
         self.device_name, self.control_param_names, self.fit_param_names = device_name, control_param_names, fit_param_names

@@ -9,15 +9,14 @@ from image_aquirer import ImageAquirerFile, ImageAquirerVimba
 
 
 class Image:
-    def __init__(self, image_aquirer):
-        self.ia = image_aquirer
-
+    def __init__(self, cam_dat_eps):
+        self.cam_dat_eps = cam_dat_eps
         self.data = None
         self.edge = None
         self.update()
 
     def load_data(self):
-        self.data = self.ia.get_image() #image is updated in a parallel loop
+        self.data = self.cam_dat_eps.get_image() #image is updated in a parallel loop
 
     def update(self):
         self.load_data()
@@ -244,9 +243,8 @@ class DataAnalyzer:
     def __init__(self, cam_dat_eps, init_dict=None):
         self.control_params = self.load_control_params(init_dict)
         #init values (same default values as in epics interface)
-       
-        self.ia = cam_dat_eps.ia #ImageAquirer('D:\\HZB\\Camera_Data\\test_roi\\')
-        self.im = Image(self.ia)
+        self.cam_dat_eps = cam_dat_eps
+        self.im = Image(self.cam_dat_eps)
         self.roi = Roi(self.control_params['roi_x_start'], self.control_params['roi_x_stop'],
                        self.control_params['roi_y_start'], self.control_params['roi_y_stop'], self.im)
         self.fit_area = FitArea(self.roi, self.im, self.control_params['factor'],
