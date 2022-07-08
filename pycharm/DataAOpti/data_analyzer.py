@@ -3,6 +3,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.ndimage import label, find_objects, median_filter
 import scipy.optimize as opt
+from sklearn.mixture import GaussianMixture
+
+
 from math import e, sqrt, pi
 
 from image_aquirer import ImageAquirerFile, ImageAquirerVimba
@@ -86,19 +89,18 @@ class FitArea:
 
     def load_data(self, roi, image):
         # median filter
-        data = roi.data
-        if self.median:
-            data = median_filter(data, size=2)
+        med_filt_data = median_filter(roi.data, size=2)
 
         # threshold filter
-        data = data > self.threshold
+        thr_filt_data = med_filt_data > self.threshold
 
         # labeln
-        data, num_label = label(data)
+        labeled_data, num_label = label(thr_filt_data)
         # TO DO: check num_label with error
 
         # fit data frame
-        frame = find_objects(data)
+        frame = find_objects(labeled_data)
+
         # TO DO: check if only one object (sonst geht frame[0] nicht)
         y_start, y_stop, x_start, x_stop = frame[0][0].start, frame[0][0].stop, frame[0][1].start, frame[0][1].stop
         dif_x, dif_y = self.calculate_expantion(self.factor, x_start, x_stop, y_start, y_stop)
@@ -108,8 +110,12 @@ class FitArea:
                             image.edge[0], image.edge[1])
         # TO DO: check if max werte stimmen
 
-        # slice image for
-        self.data = image.data[frame]
+        # slice image to fit_area
+        # if median is active, also median filter the area
+        if self.median:
+            self.data = median_filter(image.data[frame],  size=2)
+        else:
+            self.data = image.data[frame]
 
     def calculate_expantion(self, factor, x_start, x_stop, y_start, y_stop):
         dif_x = int(abs(x_stop - x_start) * factor)
@@ -153,18 +159,28 @@ class FitArea:
 
 
 class Gaussmodel:
-    def __init__(self, sampled, fit_area):
+    def __init__(self, sampled, fit_area, im):
         self.sampled = sampled
         self.z_values_in = fit_area.data.flatten()
-        edge_x = fit_area.edge[1]
-        edge_y = fit_area.edge[0]
+        edge_x = im.edge[1]
+        edge_y = im.edge[0]
         # TO DO: double check if there is some better syntax
-        self.x_values = np.repeat(np.array([range(0, edge_x)]), edge_y, axis=0).flatten()
-        self.y_values = np.repeat(np.array([range(edge_y - 1, -1, -1)]).reshape(edge_y, 1), edge_x, axis=1).flatten()
+        self.x_values_basis = np.repeat(np.array([range(0, edge_x)]), edge_y, axis=0)
+        self.y_values_basis = np.repeat(np.array([range(edge_y - 1, -1, -1)]).reshape(edge_y, 1), edge_x, axis=1)
 
+        self.x_values, self.y_values = self.build_xy_values(fit_area)
         self.initial_params = self.guess(self.x_values, self.y_values, self.z_values_in)
         popt, pcov = opt.curve_fit(self.twoD_Gaussian, (self.x_values, self.y_values), self.z_values_in, p0=self.initial_params)
         self.result = popt
+
+    def build_xy_values(self, fit_area):
+        edge_x = fit_area.edge[1]
+        edge_y = fit_area.edge[0]
+        slice_x_y = (slice(0, edge_y, None), slice(0, edge_x, None))
+        x_values = self.x_values_basis[slice_x_y].flatten()
+        y_values = self.y_values_basis[slice_x_y].flatten()
+        return x_values, y_values
+
 
     def twoD_Gaussian(self, x_y, amplitude, x_center, y_center, sigma_x, sigma_y, theta, offset):
         x, y = x_y
@@ -189,19 +205,29 @@ class Gaussmodel:
         centerx = x[np.argmax(z)]
         centery = y[np.argmax(z)]
         amplitude = (maxz - minz)  # quasi height
+
+        # stimmt wenn gauss eng am Bildrand ist
+        # vielleicht über objekt größe bestimmen
         sigmax = (maxx - minx) / 6.0
         sigmay = (maxy - miny) / 6.0
         offset = minz
 
-        return amplitude, centerx, centery, sigmax, sigmay, 0, offset
+        initial_params = amplitude, centerx, centery, sigmax, sigmay, 0, offset
+        bounds = ([0,0,0,0,0, -pi/2, 0], [16382, np.inf, np.inf, np.inf, np.inf, pi/2, 16382])
+        popt, pcov = opt.curve_fit(self.twoD_Gaussian, (x, y),
+                                   z,  p0=initial_params, bounds=bounds)
+        [amplitude, centerx, centery, sigmax, sigmay, rot, offset] = popt.tolist()
+
+        return amplitude, centerx, centery, sigmax, sigmay, rot, offset
 
     def update(self, fit_area):
         self.z_values_in = fit_area.data.flatten()
-        edge_x = fit_area.edge[1]
-        edge_y = fit_area.edge[0]
-        # TO DO: double check if there is some better syntax
-        self.x_values = np.repeat(np.array([range(0, edge_x)]), edge_y, axis=0).flatten()
-        self.y_values = np.repeat(np.array([range(edge_y - 1, -1, -1)]).reshape(edge_y, 1), edge_x, axis=1).flatten()
+
+        self.x_values, self.y_values = self.build_xy_values(fit_area)
+        #sample
+        #z_values_samp = self.z_values_in[0:(len(self.z_values_in)):self.sampled]
+        #x_values_samp = self.x_values[0:(len(self.x_values)):self.sampled]
+        #y_values_samp = self.y_values[0:(len(self.y_values)):self.sampled]
 
         self.initial_params = self.get_result()
         popt, pcov = opt.curve_fit(self.twoD_Gaussian, (self.x_values, self.y_values), self.z_values_in,
@@ -241,15 +267,16 @@ class Gaussmodel:
 
 class DataAnalyzer:
     def __init__(self, cam_dat_eps, init_dict=None):
-        self.control_params = self.load_control_params(init_dict)
-        #init values (same default values as in epics interface)
         self.cam_dat_eps = cam_dat_eps
         self.im = Image(self.cam_dat_eps)
+
+        self.control_params = self.load_control_params(init_dict)
+        #init values (same default values as in epics interface)
         self.roi = Roi(self.control_params['roi_x_start'], self.control_params['roi_x_stop'],
                        self.control_params['roi_y_start'], self.control_params['roi_y_stop'], self.im)
         self.fit_area = FitArea(self.roi, self.im, self.control_params['factor'],
                                 self.control_params['threshold'], self.control_params['median_flt'])
-        self.g_model = Gaussmodel(self.control_params['sampled'], self.fit_area)
+        self.g_model = Gaussmodel(self.control_params['sampled'], self.fit_area, self.im)
         self.params = self.g_model.get_params()
         print("first params berechnet ", self.params)
 
@@ -259,10 +286,10 @@ class DataAnalyzer:
                 'roi_x_stop': 1250, #self.im.edge[1]
                 'roi_y_start': 600, #0
                 'roi_y_stop': 900, #self.im.edge[0]
-                'factor': 0.5,
-                'threshold': 708, #how to calculate threshold?
+                'factor': 0.5, #1
+                'threshold': 708, #self.define_threshold()
                 'median_flt': True,
-                'sampled': 0}
+                'sampled': 1}
 
         control_param_values = default_control_param_values
 
@@ -272,6 +299,13 @@ class DataAnalyzer:
                     control_param_values[param] = value
 
         return control_param_values
+
+    def define_threshold(self):
+        classif = GaussianMixture(n_components=1)
+        classif.fit(self.im.data.reshape((self.im.data.size, 1)))
+        threshold = np.mean(classif.means_)
+        return threshold
+
 
     def get_init_control_params(self):
         return self.control_params
@@ -324,18 +358,29 @@ class DataAnalyzer:
 
 
 if __name__ == '__main__':
-    example_init = {'roi_x_start': 800,
-                'roi_x_stop': 1250,
-                'roi_y_start': 600,
-                'roi_y_stop': 900,
-                'factor': 0.5,
+    example_init_rot = {'control_params_values':
+                {'roi_x_start': 1000,
+                'roi_x_stop': 1500,
+                'roi_y_start': 750,
+                'roi_y_stop': 1200,
+                'factor': 1,
                 'threshold': 708,
                 'median_flt': True,
-                'sampled': 0}
+                'sampled': 1}}
+
+    example_init = {'control_params_values':
+                    {'roi_x_start': 800,
+                    'roi_x_stop': 1250,
+                    'roi_y_start': 600,
+                    'roi_y_stop': 900,
+                    'factor': 0.5,
+                    'threshold': 708,
+                    'median_flt': True,
+                    'sampled': 1}}
 
     class fake_CamDatEps:
         def __init__(self):
-            self.ia = ImageAquirerFile('D:\\HZB\\Camera_Data\\mls13\\', 200)
+            self.ia = ImageAquirerFile(self, 'D:\\HZB\\Camera_Data\\mls13\\', 200)
             self.data_analyzer = DataAnalyzer(self, example_init)
             self.data_analyzer.show()
 
