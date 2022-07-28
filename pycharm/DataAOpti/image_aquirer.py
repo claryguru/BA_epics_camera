@@ -52,7 +52,7 @@ class ImageAquirerFile(ImageAquirer):
         self.index += 1
         ar = ar.reshape(1456, 1936)
         #test rotation
-        #ar = rotate(ar, 20)
+        ar = rotate(ar, 20)
         return ar
 
     def aquire_sync(self):

@@ -224,13 +224,17 @@ class Gaussmodel:
         self.z_values_in = fit_area.data.flatten()
 
         self.x_values, self.y_values = self.build_xy_values(fit_area)
-        #sample
-        #z_values_samp = self.z_values_in[0:(len(self.z_values_in)):self.sampled]
-        #x_values_samp = self.x_values[0:(len(self.x_values)):self.sampled]
-        #y_values_samp = self.y_values[0:(len(self.y_values)):self.sampled]
+
+        z_values_samp = self.z_values_in
+        x_values_samp = self.x_values
+        y_values_samp = self.y_values
+        if self.sampled > 1:
+            z_values_samp = self.z_values_in[0:(len(self.z_values_in)):self.sampled]
+            x_values_samp = self.x_values[0:(len(self.x_values)):self.sampled]
+            y_values_samp = self.y_values[0:(len(self.y_values)):self.sampled]
 
         self.initial_params = self.get_result()
-        popt, pcov = opt.curve_fit(self.twoD_Gaussian, (self.x_values, self.y_values), self.z_values_in,
+        popt, pcov = opt.curve_fit(self.twoD_Gaussian, (x_values_samp, y_values_samp), z_values_samp,
                                    p0=self.initial_params)
         self.result = popt
 
@@ -244,7 +248,6 @@ class Gaussmodel:
         return amplitude, centerx, centery, sigmax, sigmay, rot, offset
 
     def get_params(self):
-        print(self.result.tolist())
         return self.result.tolist()
 
     def show(self):
@@ -381,7 +384,7 @@ if __name__ == '__main__':
     class fake_CamDatEps:
         def __init__(self):
             self.ia = ImageAquirerFile(self, 'D:\\HZB\\Camera_Data\\mls13\\', 200)
-            self.data_analyzer = DataAnalyzer(self, example_init)
+            self.data_analyzer = DataAnalyzer(self, example_init_rot)
             self.data_analyzer.show()
 
             for i in range(0, 10):

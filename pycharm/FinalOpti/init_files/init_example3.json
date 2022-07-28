@@ -1,0 +1,21 @@
+{"epics":
+    {"device_name": "ALMUT",
+        "control_params":
+            {"roi_x_start": "X_START",
+             "roi_x_stop": "X_STOP",
+             "threshold": "THRESHOLD",
+             "median_flt": "MEDIAN_FLT",
+             "sampled": "SAMPLED"},
+        "fit_params":
+            {"amplitude": "AMPLITUDE",
+           "center_x": "CENTER_X",
+           "sigma_y": "SIGMA_Y",
+           "rotation": "ROT",
+           "offset": "SET"}
+        },
+
+"camera":{
+    "features": {"ExposureAuto":"Off"}, 
+    "cam_id": "DEV_000F31024A32"}
+
+}
