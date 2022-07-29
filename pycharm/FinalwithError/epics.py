@@ -77,7 +77,7 @@ class Epics:
 
         ###Camera settings change
         self.ao_cam_exposure_time = builder.stringOut(device_name + '_' + 'EXPOSURE_TIME',
-                                       initial_value=self.cam_dat_eps.get_current_ia_feature('ExposureTimeAbs'),
+                                       initial_value=str(self.cam_dat_eps.get_current_ia_feature('ExposureTimeAbs')),
                                        on_update=lambda v, n: self.on_ia_feature_update('ExposureTimeAbs', v),
                                        always_update=True)
 

@@ -1,10 +1,5 @@
 {
-    "camera": {
-        "features": {
-            "ExposureAuto": "Off"
-        },
-        "cam_id": "DEV_000F31024A32"
-    },
+    "camera": {},
     "data_a": {
         "control_params_values": {
             "roi_x_start": 800,
@@ -12,7 +7,7 @@
             "roi_y_start": 600,
             "roi_y_stop": 900,
             "factor": 0.5,
-            "threshold": 708,
+            "threshold": 800,
             "median_flt": 1,
             "sampled": 0
         }

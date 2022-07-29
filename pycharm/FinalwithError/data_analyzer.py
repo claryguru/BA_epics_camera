@@ -445,12 +445,14 @@ if __name__ == '__main__':
 
     class fake_CamDatEps:
         def __init__(self):
-            self.ia = ImageAquirerFile(self, 'D:\\HZB\\Camera_Data\\mls13\\', 200)
+            #self.ia = ImageAquirerFile(self, 'D:\\HZB\\Camera_Data\\mls13\\', 200)
+            self.ia = ImageAquirerVimba(fake_CamDatEps, {"features": {"ExposureAuto":"Off"}})
             self.data_analyzer = DataAnalyzer(self, example_init)
             self.data_analyzer.show()
 
             for i in range(0, 10):
-                self.ia.aquire_sync()
+                #self.ia.aquire_sync()
+                self.ia.get_frame()
                 self.data_analyzer.analyze_sync()
 
         def get_image(self):

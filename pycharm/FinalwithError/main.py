@@ -20,8 +20,8 @@ class CamDatEps:
 
         # Create own objects from Classes
             # choose way of image aquiring:
-        self.__ia = ImageAquirerFile(self, 'D:\\HZB\\Camera_Data\\mls13\\', 200, ia_init)
-        #self.__ia = ImageAquirerVimba(ia_init)
+        #elf.__ia = ImageAquirerFile(self, 'D:\\HZB\\Camera_Data\\mls13\\', 200, ia_init)
+        self.__ia = ImageAquirerVimba(ia_init)
 
         self.__data_a = DataAnalyzer(self, data_a_init)
 
@@ -41,8 +41,6 @@ class CamDatEps:
 
     def set_ia_feature(self, feature_name, value):
         self.__ia.set_feature(feature_name, value)
-
-
 
 
     def load_cam_dat_ep(self, init_dict=None):

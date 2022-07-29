@@ -192,15 +192,12 @@ class ImageAquirerVimba(ImageAquirer):
                             try:
                                 self.image = cam.get_frame().as_numpy_ndarray()
                                 print("new image aquired")
-                                await asyncio.sleep(0)
+                                await asyncio.sleep(2)
                             except:
                                 self.cam_dat_eps.set_ia_error('Camera problem dedected,trying to reconnect')
                                 cam_connection = False
-                                await asyncio.sleep(0)
+                                await asyncio.sleep(2)
             await asyncio.sleep(0)
-
-
-
 
 
 if __name__ == '__main__':
