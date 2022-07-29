@@ -131,10 +131,11 @@ class FitArea:
         # labeln
         labeled_data, num_label = label(thr_filt_data)
         if num_label > 1:
-            print("found", num_label,  "Elektronenstrahl in roi")
+            #print("found", num_label,  "Elektronenstrahl in roi")
+            pass
 
         if num_label == 0:
-            print("no labeld area found")
+            #print("no labeld area found")
             self.data = roi.data
             frame_expanded = None
         else:
@@ -153,7 +154,8 @@ class FitArea:
 
             # in case the edge of the roi was reached during expansion
             if roi_edge:
-                print("Elektronenstrahl on the edge of the roi")
+                #print("Elektronenstrahl on the edge of the roi")
+                pass
 
         return frame_expanded, med_filt_data
 
@@ -185,7 +187,7 @@ class FitArea:
         return start_new, stop_new, edge
 
     def choose_frame(self, frames):
-        print("chose frame")
+        #print("chose frame")
         max_A = 0
         max_index = 0
         for index, frame in enumerate(frames):
@@ -343,7 +345,7 @@ class DataAnalyzer:
                                 self.control_params['threshold'], self.control_params['median_flt'])
         self.g_model = Gaussmodel(self.control_params['sampled'], self.fit_area, self.im)
         self.params = self.g_model.get_params(self.fit_area)
-        print("first params berechnet ", self.params)
+        #print("first params berechnet ", self.params)
 
     def load_control_params(self, init_dict):
         default_control_param_values = \
@@ -394,7 +396,7 @@ class DataAnalyzer:
         self.fit_area.update(self.roi)
         self.g_model.update(self.fit_area)
         self.params = self.g_model.get_params(self.fit_area)
-        print("params berechnet ", self.params)
+        #print("params berechnet ", self.params)
 
     def change_by_user(self, area, control_param_name, value):
         if area == 'roi':
@@ -434,12 +436,12 @@ if __name__ == '__main__':
                 'sampled': 1}}
 
     example_init = {'control_params_values':
-                    {'roi_x_start': 800,
+                    {'roi_x_start': 500,
                     'roi_x_stop': 1250,
                     'roi_y_start': 600,
-                    'roi_y_stop': 900,
+                    'roi_y_stop': 1000,
                     'factor': 0.1,
-                    'threshold': 708,
+                    'threshold': 1400,
                     'median_flt': True,
                     'sampled': 1}}
 

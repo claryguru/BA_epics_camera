@@ -23,17 +23,14 @@
     "features": {"ExposureAuto":"Off"}
 },
 "data_a":{
-    "control_params_values":
-        {"roi_x_start": 800, 
-        "roi_x_stop": 1100,
-        "roi_y_start": 650, 
-        "roi_y_stop": 900, 
+    "control_params_values": {
+        "roi_x_start": 500,
+        "roi_x_stop": 1250,
+        "roi_y_start": 600,
+        "roi_y_stop": 1000,
         "factor": 0.5,
-        "threshold": 800, 
+        "threshold": 1400,
         "median_flt": 1,
-        "sampled": 0}
-}
-
-
-
-}
+        "sampled": 0
+    }
+}}

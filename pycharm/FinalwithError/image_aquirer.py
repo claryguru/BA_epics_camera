@@ -110,7 +110,6 @@ class ImageAquirerVimba(ImageAquirer):
         self.get_frame()
 
     def get_image(self):
-        print("get_image", type(self.image))
         return self.image
 
     def get_ia_settings(self):
@@ -127,10 +126,12 @@ class ImageAquirerVimba(ImageAquirer):
                 try:
                     return vimba.get_camera_by_id(self.cam_id)
                 except VimbaCameraError:
+                    #print('Failed to access Camera '+self.cam_id)
                     self.cam_dat_eps.set_ia_error('Failed to access Camera '+self.cam_id)
             else:
                 cams = vimba.get_all_cameras()
                 if not cams:
+                    #print('No Cameras accessible')
                     self.cam_dat_eps.set_ia_error('No Cameras accessible')
                 return cams[0]
 
@@ -138,6 +139,7 @@ class ImageAquirerVimba(ImageAquirer):
         self.stop_running()
         self.feature_dict[feature_name]=value
         self.start_running()
+        print(feature_name,'was set to', value)
 
 
     def set_up(self, cam):
@@ -180,23 +182,28 @@ class ImageAquirerVimba(ImageAquirer):
         self.running = True
         while True:
             while self.running:
-                with Vimba.get_instance():
-                    with self.get_camera() as cam:
-                        print("Camera has been opened")
+                #print("try connecting")
+                try:
+                    with Vimba.get_instance():
+                        with self.get_camera() as cam:
+                            print("Camera has been opened")
 
-                        self.set_up(cam)
-                        print("Camera set up")
+                            self.set_up(cam)
+                            print("Camera set up")
 
-                        cam_connection = True
-                        while cam_connection and self.running:
-                            try:
-                                self.image = cam.get_frame().as_numpy_ndarray()
-                                print("new image aquired")
-                                await asyncio.sleep(2)
-                            except:
-                                self.cam_dat_eps.set_ia_error('Camera problem dedected,trying to reconnect')
-                                cam_connection = False
-                                await asyncio.sleep(2)
+                            cam_connection = True
+                            self.cam_dat_eps.set_ia_error('Camera connected')
+                            while cam_connection and self.running:
+                                try:
+                                    self.image = cam.get_frame().as_numpy_ndarray()
+                                    #print("new image aquired")
+                                    await asyncio.sleep(0)
+                                except:
+                                    #print('Camera problem dedected,trying to reconnect')
+                                    self.cam_dat_eps.set_ia_error('Camera problem dedected,trying to reconnect')
+                                    cam_connection = False
+                                    await asyncio.sleep(0)
+                except: await asyncio.sleep(0)
             await asyncio.sleep(0)
 
 

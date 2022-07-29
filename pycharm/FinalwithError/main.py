@@ -20,8 +20,8 @@ class CamDatEps:
 
         # Create own objects from Classes
             # choose way of image aquiring:
-        #elf.__ia = ImageAquirerFile(self, 'D:\\HZB\\Camera_Data\\mls13\\', 200, ia_init)
-        self.__ia = ImageAquirerVimba(ia_init)
+        self.__ia = ImageAquirerFile(self, 'D:\\HZB\\Camera_Data\\mls13\\', 200, ia_init)
+        self.__ia = ImageAquirerVimba(self, ia_init)
 
         self.__data_a = DataAnalyzer(self, data_a_init)
 
@@ -80,7 +80,7 @@ class CamDatEps:
         while True:
             self.__data_a.analyze_sync()
             self.__epics.run_sync()
-            await asyncio.sleep(2)
+            await asyncio.sleep(0)
 
     def run(self, dispatcher):
         asyncio.run_coroutine_threadsafe(self.__ia.aquire(), dispatcher.loop)

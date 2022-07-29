@@ -78,7 +78,7 @@ class Epics:
         ###Camera settings change
         self.ao_cam_exposure_time = builder.stringOut(device_name + '_' + 'EXPOSURE_TIME',
                                        initial_value=str(self.cam_dat_eps.get_current_ia_feature('ExposureTimeAbs')),
-                                       on_update=lambda v, n: self.on_ia_feature_update('ExposureTimeAbs', v),
+                                       on_update=lambda v: self.on_ia_feature_update('ExposureTimeAbs', int(v)),
                                        always_update=True)
 
         #settings saved for later
@@ -118,7 +118,7 @@ class Epics:
                     control_param_names[param] = name
             if 'fit_params' in init_dict:
                 for param, name in init_dict['fit_params'].items():
-                    control_param_names[param] = name
+                    fit_param_names[param] = name
             if 'error_names' in init_dict:
                 error_names = init_dict['error_name']
 
@@ -130,8 +130,7 @@ class Epics:
         print("in ", area, control_param_name, " change to ", value)
 
     def on_ia_feature_update(self, feature_name, value):
-        self.cam_dat_eps.set_ia_feature(self, feature_name, value)
-
+        self.cam_dat_eps.set_ia_feature(feature_name, value)
 
     def on_save_settings(self, file_name):
         self.cam_dat_eps.save_toJson(file_name)
@@ -144,7 +143,8 @@ class Epics:
         settings['error_names'] = self.error_names
         return settings
 
-    def set_fit_params(self, param_list):
+    def set_fit_params(self):
+        param_list = self.cam_dat_eps.get_current_params()
         # order of params: [amplitude, centerx, centery, sigmax, sigmay, rot, offset]
         if param_list != []:
             self.ai_amplitude.set(param_list[0])
@@ -166,15 +166,15 @@ class Epics:
 
     async def run(self):
         while True:
-            params = self.cam_dat_eps.get_current_params()
-            self.set_fit_params(params)
-            print("new params set")
+            self.set_fit_params()
+            #print("new params set")
+            self.set_error()
             await asyncio.sleep(2)
 
     def run_sync(self):
-        params = self.cam_dat_eps.get_current_params()
-        self.set_fit_params(params)
-        print("new params set")
+        self.set_fit_params()
+        #print("new params set")
+        self.set_error()
 
 
 if __name__ == '__main__':

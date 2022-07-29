@@ -1,9 +1,5 @@
 {
-    "camera": {
-        "features": {
-            "ExposureAuto": "Off"
-        }
-    },
+    "camera": {},
     "data_a": {
         "control_params_values": {
             "roi_x_start": 500,
