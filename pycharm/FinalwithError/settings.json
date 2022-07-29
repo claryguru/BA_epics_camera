@@ -1,5 +1,10 @@
 {
-    "camera": {},
+    "camera": {
+        "features": {
+            "ExposureAuto": "Off"
+        },
+        "cam_id": "DEV_000F31024A32"
+    },
     "data_a": {
         "control_params_values": {
             "roi_x_start": 800,
@@ -40,6 +45,9 @@
             "rotation": "AI_ROTATION",
             "offset": "AI_OFFSET"
         },
-        "error_name": "AI_ERROR"
+        "error_names": {
+            "error_ia": "AI_ERROR_IA",
+            "error_da": "AI_ERROR_DA"
+        }
     }
 }

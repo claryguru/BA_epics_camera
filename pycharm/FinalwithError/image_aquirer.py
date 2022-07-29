@@ -13,6 +13,15 @@ class ImageAquirer:
     def notify_error(self):
         pass
 
+    def get_current_feature(self, feature_name):
+        pass
+
+    def set_feature(self, feature_name, value):
+        pass
+
+    def stop_running(self):
+        pass
+
     async def aquire(self):
         pass
 
@@ -25,6 +34,8 @@ class ImageAquirerFile(ImageAquirer):
         self.rotation = rot
         self.image = self.load_im()
         self.max_index = max_index
+
+        self.running = False
 
         self.init_dict = None
         if init_dict:
@@ -41,6 +52,9 @@ class ImageAquirerFile(ImageAquirer):
             return self.init_dict
         else:
             return {}
+
+    def get_current_feature(self, feature_name):
+        return 'file_ia_feature'
 
     def notify_error(self, error_message):
         self.cam_dat_eps.notify_ia_error(error_message)
@@ -62,8 +76,14 @@ class ImageAquirerFile(ImageAquirer):
         else:
             print("reached end of folder")
 
+    def stop_running(self):
+        self.running = False
+
+    def set_feature(self, feature_name, value): pass
+
     async def aquire(self):
-        while self.index <= self.max_index:
+        self.running = True
+        while (self.index <= self.max_index) and self.running:
             self.image = self.load_im()
             await asyncio.sleep(2)
         print("reached end of folder")
@@ -75,6 +95,8 @@ class ImageAquirerVimba(ImageAquirer):
         self.image = None
         self.cam_id = ""
         self.feature_dict = {}
+
+        self.running = False
 
         self.cam_dat_eps = cam_dat_eps
 
@@ -105,13 +127,18 @@ class ImageAquirerVimba(ImageAquirer):
                 try:
                     return vimba.get_camera_by_id(self.cam_id)
                 except VimbaCameraError:
-                    print('Failed to access Camera', self.cam_id)
-
+                    self.cam_dat_eps.set_ia_error('Failed to access Camera '+self.cam_id)
             else:
                 cams = vimba.get_all_cameras()
                 if not cams:
-                    print('No Cameras accessible')
+                    self.cam_dat_eps.set_ia_error('No Cameras accessible')
                 return cams[0]
+
+    def set_feature(self, feature_name, value):
+        self.stop_running()
+        self.feature_dict[feature_name]=value
+        self.start_running()
+
 
     def set_up(self, cam):
         for feature, value in self.feature_dict.items():
@@ -120,33 +147,57 @@ class ImageAquirerVimba(ImageAquirer):
             print("feature set to", feat)
 
     def get_frame(self):
-        with Vimba.get_instance():
-            with self.get_camera() as cam:
-                print("Camera has been opened")
-
-                self.set_up(cam)
-                self.image = cam.get_frame().as_numpy_ndarray()
-                print("one image loaded")
-
-    async def aquire(self):
-        while True:
+        try:
             with Vimba.get_instance():
                 with self.get_camera() as cam:
                     print("Camera has been opened")
 
                     self.set_up(cam)
-                    print("Camera set up")
+                    self.image = cam.get_frame().as_numpy_ndarray()
+                    print("one image loaded")
+        except:
+            pass #dummy image?
 
-                    cam_connection = True
-                    while cam_connection:
-                        try:
-                            self.image = cam.get_frame().as_numpy_ndarray()
-                            print("new image aquired")
-                            await asyncio.sleep(0)
-                        except:
-                            print("camera problem dedected")
-                            cam_connection = False
-                            await asyncio.sleep(0)
+    def get_current_feature(self, feature_name):
+        try:
+            with Vimba.get_instance():
+                with self.get_camera() as cam:
+                    print("Camera has been opened")
+                    feat = cam.get_feature_by_name(feature_name)
+                    value = feat.get()
+        except:
+            value = 'no value for '+feature_name+' found'
+        finally:
+            return value
+
+    def stop_running(self):
+        self.running = False
+
+    def start_running(self):
+        self.running = True
+
+    async def aquire(self):
+        self.running = True
+        while True:
+            while self.running:
+                with Vimba.get_instance():
+                    with self.get_camera() as cam:
+                        print("Camera has been opened")
+
+                        self.set_up(cam)
+                        print("Camera set up")
+
+                        cam_connection = True
+                        while cam_connection and self.running:
+                            try:
+                                self.image = cam.get_frame().as_numpy_ndarray()
+                                print("new image aquired")
+                                await asyncio.sleep(0)
+                            except:
+                                self.cam_dat_eps.set_ia_error('Camera problem dedected,trying to reconnect')
+                                cam_connection = False
+                                await asyncio.sleep(0)
+            await asyncio.sleep(0)
 
 
 

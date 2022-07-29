@@ -3,7 +3,7 @@ from softioc import softioc, asyncio_dispatcher
 import asyncio
 
 # Import own classes
-from epics import Epics
+from epics import Epics, Builder
 from data_analyzer import DataAnalyzer
 from image_aquirer import ImageAquirerFile, ImageAquirerVimba
 
@@ -20,10 +20,11 @@ class CamDatEps:
 
         # Create own objects from Classes
             # choose way of image aquiring:
-        #self.__ia = ImageAquirerFile(self, 'D:\\HZB\\Camera_Data\\mls13\\', 200, ia_init)
-        self.__ia = ImageAquirerVimba(ia_init)
+        self.__ia = ImageAquirerFile(self, 'D:\\HZB\\Camera_Data\\mls13\\', 200, ia_init)
+        #self.__ia = ImageAquirerVimba(ia_init)
 
         self.__data_a = DataAnalyzer(self, data_a_init)
+
         self.__epics = Epics(self, self.__data_a.get_init_control_params(), epics_init)
 
     def set_ia_error(self, error_message):
@@ -34,6 +35,15 @@ class CamDatEps:
 
     def get_errors(self):
         return self.ia_error, self.da_error
+
+    def get_current_ia_feature(self, feature_name):
+        return self.__ia.get_current_feature(feature_name)
+
+    def set_ia_feature(self, feature_name, value):
+        self.__ia.set_feature(feature_name, value)
+
+
+
 
     def load_cam_dat_ep(self, init_dict=None):
         ia_init, data_a_init, epics_init = None, None, None
@@ -51,6 +61,13 @@ class CamDatEps:
                     'data_a': self.__data_a.get_data_a_settings(),
                     'epics': self.__epics.get_epics_settings()}
         return settings
+
+    def save_toJson(self, file_name):
+            settings = self.get_cam_dat_ep_settings()
+            file_path = file_name+ '.json'
+            with open(file_path, "w") as fp:
+                json.dump(settings, fp, indent=4)
+                fp.close()
 
     def on_control_params_update(self, area, control_param_name, value):
         self.__data_a.change_by_user(area, control_param_name, value)
@@ -73,12 +90,14 @@ class CamDatEps:
 
 
 class CamIOC:
-    def __init__(self):
+    def __init__(self, builder_name):
         # Create an asyncio dispatcher, the event loop is now running
         self.dispatcher = asyncio_dispatcher.AsyncioDispatcher()
 
         # Create a List of used CamDatEps:
         self.cams = []
+
+        self.builder = Builder(builder_name)
 
     def add_camera(self, init_file=None):
         #falls init file lade set_up dict und init Camera übergeben
@@ -104,6 +123,9 @@ class CamIOC:
                 fp.close()
 
     def run(self):
+        #load builder Database
+        self.builder.start()
+
         # Start iocInit
         softioc.iocInit(self.dispatcher)
 
@@ -120,7 +142,7 @@ class CamIOC:
 
 if __name__ == '__main__':
     #list_ camera Name, device_name, Cam Einstellungen -> Ines
-    ioc = CamIOC()
+    ioc = CamIOC('CAM_IOC')
     #ioc.add_camera('.\\init_files\\init_example4.json')
     ioc.add_camera('.\\init_files\\init_example.json')
     ioc.save_toJson('.\\init_files')

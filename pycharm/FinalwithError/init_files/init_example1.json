@@ -3,17 +3,12 @@
         "control_params":
             {"roi_x_start": "X_START",
              "roi_x_stop": "X_STOP",
-             "roi_y_start": "Y_START",
-             "roi_y_stop": "Y_STOP",
-             "factor": "FACTOR",
              "threshold": "THRESHOLD",
              "median_flt": "MEDIAN_FLT",
              "sampled": "SAMPLED"},
         "fit_params":
             {"amplitude": "AMPLITUDE",
            "center_x": "CENTER_X",
-           "center_y": "CENTER_Y",
-           "sigma_x": "SIGMA_X",
            "sigma_y": "SIGMA_Y",
            "rotation": "ROT",
            "offset": "SET"}
@@ -29,9 +24,7 @@
         "roi_x_stop": 1250,
         "roi_y_start": 600, 
         "roi_y_stop": 900, 
-        "factor": 0.5,
-        "threshold": 708, 
-        "median_flt": 1,
         "sampled": 0}
 }
+
 }
