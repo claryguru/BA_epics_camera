@@ -697,10 +697,10 @@ if __name__ == '__main__':
                 'sampled': 1}}
 
     example_init = {'control_params_values':
-                    {'roi_x_start': 500,
+                    {'roi_x_start': 800,
                     'roi_x_stop': 1250,
                     'roi_y_start': 600,
-                    'roi_y_stop': 1000,
+                    'roi_y_stop': 900,
                     'factor': 0.1,
                     'threshold': 1400,
                     'median_flt': True,
