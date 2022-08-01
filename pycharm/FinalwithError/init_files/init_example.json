@@ -30,7 +30,7 @@
         "roi_y_stop": 1000,
         "factor": 0.5,
         "threshold": 1400,
-        "median_flt": 1,
+        "median_flt": true, 
         "sampled": 0
     }
 }}
