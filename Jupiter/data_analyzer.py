@@ -339,6 +339,7 @@ class GaussianFit:
         self.cam_dat_eps = cam_dat_eps
 
         self.sampled = sampled
+
         self.initial_params = None
         self.result = None
 
@@ -445,6 +446,7 @@ class GaussianFit:
             # do actual fit analysis
             self.initial_params = self.result # old result = new initial params
             popt, pcov = opt.curve_fit(self.gaussian_model, (self.x_values, self.y_values), self.z_values_in, p0=self.initial_params)
+            
             self.result = popt
         except:
             error_message = 'updating gaussian fit failed'
@@ -510,6 +512,7 @@ class GaussianFit:
         ax.set_title("data fitted")
         ax.scatter(self.x_values, self.y_values, z_values_new, c=z_values_new, cmap='viridis', linewidth=0.5)
 
+        print("dif:", np.sum((self.z_values_in-z_values_new)**2) // len(self.z_values_in))
         plt.show()
 
 
@@ -520,7 +523,7 @@ class DataAnalyzer:
     '''
 
 ### --- Init
-    def __init__(self, cam_dat_eps, init_dict=None, label=False):
+    def __init__(self, cam_dat_eps, init_dict=None, label=True):
         self.cam_dat_eps = cam_dat_eps
 
         try:
