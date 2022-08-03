@@ -5,7 +5,7 @@ import scipy.optimize as opt
 from sklearn.mixture import GaussianMixture
 from math import pi
 
-from image_aquirer import ImageAcquirerFile, ImageAcquirerVimba
+#from image_aquirer import ImageAcquirerFile, ImageAcquirerVimba
 
 
 class Image:
@@ -110,7 +110,7 @@ class Roi:
             return x
 
     def send_error(self, error_message):
-        print(error_message)
+        #print(error_message)
         self.cam_dat_eps.set_da_error(error_message)
 
     def show(self):
@@ -162,6 +162,7 @@ class FitArea:
         if self.labeln:
             # find frame around object, expand frame according to factor
             frame_expanded, med_filt_data, = self.label(roi)
+
             if frame_expanded:
                 # slice roi to fit_area
                 # if median is active, slice from median_filtered data
@@ -184,14 +185,14 @@ class FitArea:
     def label(self, roi):
         # median filter
         med_filt_data = median_filter(roi.data, size=2)
-
+        
         # threshold filter
         thr_filt_data = med_filt_data > self.threshold
-
+        
         # labeln
         labeled_data, num_label = label(thr_filt_data)
         if num_label > 1:
-            error_message = 'found '+num_label+' possible electron objects in roi, maybe change threshold'
+            error_message = 'found '+str(num_label)+' possible electron objects in roi, maybe change threshold'
             self.send_error(error_message)
 
         if num_label == 0:
@@ -315,7 +316,7 @@ class FitArea:
             self.send_error(error_message)
 
     def send_error(self, error_message):
-        print(error_message)
+        #print(error_message)
         self.cam_dat_eps.set_da_error(error_message)
 
     def show(self):
@@ -491,7 +492,7 @@ class GaussianFit:
             self.send_error(error_message)
 
     def send_error(self,error_message):
-        print(error_message)
+        #print(error_message)
         self.cam_dat_eps.set_da_error(error_message)
 
     def show(self):
@@ -526,20 +527,23 @@ class DataAnalyzer:
             # load control params from init_dict
             # save so they can be used for initial values in epics
             self.control_params = self.load_control_params(init_dict)
-
+            
             # initialize all areas
             self.image = Image(self.cam_dat_eps)
-
+            
             self.add_roi_control_params_from_image(self.image)
             self.roi = Roi(self.control_params['roi_x_start'], self.control_params['roi_x_stop'],
                            self.control_params['roi_y_start'], self.control_params['roi_y_stop'], self.cam_dat_eps)
+            self.roi.init(self.image)
 
             self.add_fit_area_control_params_from_roi(self.roi)
             self.fit_area = FitArea(self.control_params['factor'], self.control_params['threshold'],
                                     self.cam_dat_eps, self.control_params['median_flt'], labeln=label)
-
+            self.fit_area.init(self.roi)
+            
             # initialize gaussian fit
             self.g_fit = GaussianFit(self.control_params['sampled'], self.cam_dat_eps)
+            self.g_fit.init(self.fit_area, self.image)
         except:
             error_message = 'initializing data analyzer objects failed, maybe change control parameter in init file'
             self.send_error(error_message)
@@ -587,7 +591,9 @@ class DataAnalyzer:
         # in case there is already a loaded roi, the threshold can be calculated from it
         if 'threshold' not in self.control_params:
             if roi.data is not None:
-                self.control_params['roi_y_stop'] = self.define_threshold(roi.data)
+                self.control_params['threshold'] = self.define_threshold(roi.data)
+            else: self.control_params['threshold'] = 0
+           
 
     def define_threshold(self, data):
         # calculated threshold of a for- and background of some data
@@ -660,7 +666,7 @@ class DataAnalyzer:
                 self.fit_area.update(self.roi)
                 self.g_fit.update(self.fit_area)
                 self.params = self.g_fit.get_fit_params(self.fit_area)
-                print("successful analyzation")
+                #print("successful analyzation")
                 self.send_error(None)
             except:
                 error_message = 'analyzing failed'
