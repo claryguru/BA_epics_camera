@@ -1,0 +1,225 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Save-And-Restore &#8212; Phoebus 1.0 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Credentials Management" href="../../../credentials-management/doc/index.html" />
+    <link rel="prev" title="Olog" href="../../../logbook/olog/ui/doc/index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../credentials-management/doc/index.html" title="Credentials Management"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../../../logbook/olog/ui/doc/index.html" title="Olog"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Phoebus 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../applications.html" accesskey="U">Applications</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Save-And-Restore</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="save-and-restore">
+<h1>Save-And-Restore<a class="headerlink" href="#save-and-restore" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The save-and-restore application can be used to take a snapshot of a pre-defined list if PVs at a certain point in
+time, and write the persisted values back to the IOCs at some later point.</p>
+<p>The application depends on the save-and-restore service deployed on the network such that it can be accessed over
+HTTP. The URL of the service is specified in the save-and-restore.properties file or in the settings file
+pointed to on the command line.</p>
+<p>Connection to PVs works the same as for OPI control widgets. The preference org.phoebus.pv/default will determine
+how the connection will be set up (ca or pva), but user may explicitly select protocol by using scheme prefix
+ca:// or pva://, e.g. ca://my_PV.</p>
+</div>
+<div class="section" id="nodes-and-node-types">
+<h2>Nodes and node types<a class="headerlink" href="#nodes-and-node-types" title="Permalink to this headline">¶</a></h2>
+<p>Save-and-restore data managed by the service is arranged in a tree-like structure and hence presented using
+a tree view UI component. In the following objects in the tree are referred to as “nodes”. The root of the tree
+structure is a folder that may only contain folder nodes. Folders may contain sub-folders or save sets, or both.
+The child nodes of a save set are snapshots associated with that save set.</p>
+<p>There are three node types managed in the application:</p>
+<ul class="simple">
+<li><p><strong>Folder</strong>: container of other folders or save sets.</p></li>
+<li><p><strong>Save set</strong>: a list of PV names and associated meta-data.</p></li>
+<li><p><strong>Snapshot</strong>: the PV values read from PVs listed in a save set.</p></li>
+</ul>
+<p><em>NOTE</em>: If a folder or save set node is deleted, all child nodes are unconditionally and recursively deleted! The user
+is prompted to confirm delete actions as deletion is irreversible.</p>
+<p>Below screen shot shows the tree structure and a save set editor.</p>
+<a class="reference internal image-reference" href="../../../../_images/screenshot1.png"><img alt="../../../../_images/screenshot1.png" src="../../../../_images/screenshot1.png" style="width: 80%;" /></a>
+</div>
+<div class="section" id="a-word-of-caution">
+<h2>A word of caution<a class="headerlink" href="#a-word-of-caution" title="Permalink to this headline">¶</a></h2>
+<p>Nodes maintained in save-and-restore are persisted in a central service and consequently accessible by multiple
+clients. Users should keep in mind that changes (e.g. new or deleted nodes) are not pushed to all connected clients.
+Caution is therefore advocated when working on the nodes in the tree, in particular when changing the structure by
+deleting or moving nodes.</p>
+</div>
+<div class="section" id="drag-n-drop">
+<h2>Drag-n-drop<a class="headerlink" href="#drag-n-drop" title="Permalink to this headline">¶</a></h2>
+<p>Nodes in the tree can be copied (mouse + modifier key) or moved using drag-n-drop. The following restrictions apply:
+* Only folder and save set nodes can be copied or moved.
+* Save set nodes cannot be copied or moved to the root folder node.
+* Target node (aka drop target) must be a folder.</p>
+<p>Checks are performed on the service to enforce the above restrictions. If pre-conditions are not met when the selection
+is dropped, the application will present an error dialog.</p>
+<p>Drag-n-drop is disabled if multiple nodes are selected and if:
+* Selection contains a combination of folder and save set nodes. All selected nodes must be of same type.
+* Selection contains nodes with different parent nodes. All selected nodes must have the same parent node.</p>
+<p>Once a selection of nodes have been copied or moved successfully, the target folder is refreshed to reflect the change.</p>
+<p><strong>NOTE</strong>: Copying a large number of nodes and/or nodes with deep sub-trees is discouraged as this is an expensive operation.
+Moving nodes on the other hand is lightweight as only references in the tree structure are updated.</p>
+</div>
+<div class="section" id="script-support">
+<h2>Script Support<a class="headerlink" href="#script-support" title="Permalink to this headline">¶</a></h2>
+<p>Basic script support for Save-And-Restore is provided in the class SaveAndRestoreScriptUtil. The available methods
+require the unique id of a node in the Save-And-Restore tree structure, which can be copied to the clipboard
+from the context menu:</p>
+<a class="reference internal image-reference" href="../../../../_images/copy_uniuqe_id.png"><img alt="../../../../_images/copy_uniuqe_id.png" src="../../../../_images/copy_uniuqe_id.png" style="width: 35%;" /></a>
+<div class="section" id="api">
+<h3>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h3>
+<p><strong>Get child nodes of a node:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">org.phoebus.applications.saveandrestore.script</span> <span class="kn">import</span> <span class="n">SaveAndRestoreScriptUtil</span>
+<span class="nb">print</span> <span class="n">SaveAndRestoreScriptUtil</span><span class="o">.</span><span class="n">getChildNodes</span><span class="p">(</span><span class="s2">&quot;&lt;unique id of a node&gt;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>An exception is thrown if the node id is invalid, or if the connection to the remote service fails.</p>
+<p><strong>Get list of snapshot values of a snapshot:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">org.phoebus.applications.saveandrestore.script</span> <span class="kn">import</span> <span class="n">SaveAndRestoreScriptUtil</span>
+<span class="nb">print</span> <span class="n">SaveAndRestoreScriptUtil</span><span class="o">.</span><span class="n">getSnapshotItems</span><span class="p">(</span><span class="s2">&quot;&lt;unique id of a snapshot node&gt;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>An exception is thrown if the snapshot node id is invalid, or if the connection to the remote service fails.</p>
+<p><strong>Restore a snapshot:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">org.phoebus.applications.saveandrestore.script</span> <span class="kn">import</span> <span class="n">SaveAndRestoreScriptUtil</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">SaveAndRestoreScriptUtil</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="s2">&quot;&lt;unique id of a snapshot node&gt;&quot;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The method signature is <code class="docutils literal notranslate"><span class="pre">restore(snapshotNodeId,</span> <span class="pre">connectTimeout,</span> <span class="pre">writeTimeout,</span> <span class="pre">abortOnFail,</span> <span class="pre">rollback)</span></code> where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">snapshotNodeId</span></code> is the unique id of an existing snapshot.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">connectTimeout</span></code> is the timeout in ms waiting for all PVs in the snapshot to connect.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">writeTimeout</span></code> is the timeout in ms for a restore/write operation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">abortOnFail</span></code> determines if the restore procedure should be aborted if restore/write of a PV fails.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rollback</span></code> determines whether to rollback if a restore/write operation fails.</p></li>
+</ul>
+<p>This method will obtain saved PV values from the snapshot and restore them to the persisted values. The restore operation
+is synchronous with respect to each PV where each write operation will wait for at most <code class="docutils literal notranslate"><span class="pre">writeTimeout</span></code> ms to
+complete. PVs marked as read-only in the save set are not restored.</p>
+<p>Before the restore/write operations are invoked, this method will first connect to all PVs and wait at most <code class="docutils literal notranslate"><span class="pre">connectTimeout</span></code>
+ms to complete. Once a PV is connected, its current value is read to be used if a rollback is requested.</p>
+<p>An exception is thrown if:</p>
+<ul class="simple">
+<li><p>If the connection to the remote service fails.</p></li>
+<li><p>If the snapshot node id is invalid.</p></li>
+<li><p>If any of the PVs in the snapshot fails to connect within <code class="docutils literal notranslate"><span class="pre">connectTimeout</span></code> ms.</p></li>
+</ul>
+<p>Upon successful completion, a RestoreReport object is returned. It contains the following fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">snapshotId</span></code>: The snapshot id.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">snapshotPath</span></code>: The snapshot “path” as defined by the Save-And-Restore tree structure, e.g. <code class="docutils literal notranslate"><span class="pre">/folder1/folder2/saveset1/snapshotId</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">restoreDate</span></code>: The date when the restore operation was requested.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">restoredPVs</span></code>: A map of successfully restored PV names and the values to which they were restored.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nonRestoredPVs</span></code>: A list of PV names that could not be restored/written, if any.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rolledBackPVs</span></code>: A map of rolled-back PV names and the values to which they were rolled-back. Non-null only if any write operation failed and if rollback was requested.</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Save-And-Restore</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#nodes-and-node-types">Nodes and node types</a></li>
+<li><a class="reference internal" href="#a-word-of-caution">A word of caution</a></li>
+<li><a class="reference internal" href="#drag-n-drop">Drag-n-drop</a></li>
+<li><a class="reference internal" href="#script-support">Script Support</a><ul>
+<li><a class="reference internal" href="#api">API</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../../../logbook/olog/ui/doc/index.html"
+                        title="previous chapter">Olog</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../../../credentials-management/doc/index.html"
+                        title="next chapter">Credentials Management</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../../_sources/app/save-and-restore/app/doc/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../credentials-management/doc/index.html" title="Credentials Management"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../../../logbook/olog/ui/doc/index.html" title="Olog"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Phoebus 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../applications.html" >Applications</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Save-And-Restore</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Phoebus Developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

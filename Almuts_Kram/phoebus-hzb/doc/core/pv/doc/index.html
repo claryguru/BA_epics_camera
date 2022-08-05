@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Process Variables &#8212; Phoebus 1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Active Jobs" href="../../ui/doc/index.html" />
+    <link rel="prev" title="Applications" href="../../../applications.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../ui/doc/index.html" title="Active Jobs"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../../../applications.html" title="Applications"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Phoebus 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../applications.html" accesskey="U">Applications</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Process Variables</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="process-variables">
+<h1>Process Variables<a class="headerlink" href="#process-variables" title="Permalink to this headline">¶</a></h1>
+<p>Several types of process variables are supported.
+A prefix of the form “xx://..” is typically used to select the PV type.</p>
+<div class="section" id="channel-access">
+<h2>Channel Access<a class="headerlink" href="#channel-access" title="Permalink to this headline">¶</a></h2>
+<p>Process variables that are to be accessed over the channel access protocol are simply identified by
+the channel name.</p>
+<p>Channel access is the default protocol.
+If desired, ‘ca://’ can be used to specifically select channel access,
+but for the time being no protocol identification is necessary for channel access.</p>
+<p>Examples:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>SomePVName
+ca://SomePVName
+SomeMotor.RBV
+</pre></div>
+</div>
+<p>Channel Access settings are configured via <a class="reference internal" href="../../../preference_properties.html#preference-settings"><span class="std std-ref">Preferences Listing</span></a>, most important:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Channel Access address list
+org.phoebus.pv.ca/addr_list=...
+</pre></div>
+</div>
+</div>
+<div class="section" id="pv-access">
+<h2>PV Access<a class="headerlink" href="#pv-access" title="Permalink to this headline">¶</a></h2>
+<p>Process variables that are to be accessed over the PV Access protocol must be identified by a formatted string that
+contains the process variable’s name.</p>
+<p>As PV Access is not the default protocol, process variables accessed over it must have the protocol spectrue;ified with ‘pva://’.</p>
+<p>The PV Access format is as follows:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pva://SomePVName
+pva://SomePVName/subfield/subelement
+</pre></div>
+</div>
+<p>As shown, when accessing structures, the path to a nested structure element can be provided.</p>
+<p>PV Access is configured via the following environment variables or Java properties:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Address list. When empty, local subnet is used
+export EPICS_PVA_ADDR_LIST = &quot;127.0.0.1  10.1.10.255&quot;
+
+# Add local broadcast addresses to addr list? (Value YES, NO)
+export EPICS_PVA_AUTO_ADDR_LIST = YES
+</pre></div>
+</div>
+</div>
+<div class="section" id="simulated">
+<h2>Simulated<a class="headerlink" href="#simulated" title="Permalink to this headline">¶</a></h2>
+<p>Simulated process variables are useful for tests. They do not communicate with the control system.</p>
+<dl class="simple">
+<dt>The provided simulated process variables are:</dt><dd><ul class="simple">
+<li><p>flipflop(update_seconds)</p></li>
+<li><p>gaussianNoise(center, std_dev, update_seconds)</p></li>
+<li><p>gaussianWave(period, std_dev, size, update_seconds)</p></li>
+<li><p>intermittent(update_seconds)</p></li>
+<li><p>noise(min, max, update_seconds)</p></li>
+<li><p>noisewave(min, max, update_seconds)</p></li>
+<li><p>ramp(min, max, update_seconds)</p></li>
+<li><p>sawtooth(period_seconds, wavelength, size, update_seconds)</p></li>
+<li><p>sine(min, max, update_seconds)</p></li>
+<li><p>sinewave(period_seconds, wavelength, size, update_seconds)</p></li>
+<li><p>strings(update_seconds)</p></li>
+<li><p>const(value)</p></li>
+</ul>
+</dd>
+</dl>
+<p>Examples:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>sim://sine
+sim://ramp
+sim://ramp(1, 10, 0.2)
+sim://noise
+sim://const(42)
+sim://const(&quot;Fred&quot;)
+</pre></div>
+</div>
+</div>
+<div class="section" id="local">
+<h2>Local<a class="headerlink" href="#local" title="Permalink to this headline">¶</a></h2>
+<p>Local process variables can be used within the application,
+for example to send a value from one display to another display within the same application.
+They do not communicate with the control system.</p>
+<p>Following the “loc://” prefix, the variable name must start with a character A-Z or a-z,
+potentially followed by more characters or numbers.
+Valid examples are “A”, “b”, “Example2”, “MyVar42”.
+Invalid examples are “42”, “2ndExample”.</p>
+<p>Next is an optional type selector like “&lt;VLong&gt;” and initial value like “42”.
+Unless a type selector and initial value are provided, a local value will be of type ‘VDouble’
+with initial value of 0.</p>
+<p>Local process variables only exist as long as they are referenced.
+When all references to a local process variable are released, the PV is
+deleted.</p>
+<p>Examples:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>loc://example
+loc://a_number(42.2)
+loc://an_array(3.8, 2.5, 7.4)
+loc://a_text(&quot;Hello&quot;)
+loc://large&lt;VLong&gt;(42)
+loc://options&lt;VEnum&gt;(2, &quot;A&quot;, &quot;Initial&quot;, &quot;B&quot;, &quot;C&quot;)
+</pre></div>
+</div>
+</div>
+<div class="section" id="formulas">
+<h2>Formulas<a class="headerlink" href="#formulas" title="Permalink to this headline">¶</a></h2>
+<p>Formula-based PVs can perform simple computations on constants and other PVs.
+The equation can be created via the ‘eq://’ prefix or alternatively via ‘=’.
+Other process variables are referenced via backquotes.</p>
+<p>Examples:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>eq://3+4
+=3+4
+=10 + 5*`sim://sine`
+=`sim://ramp`&gt;1 ? 10 : -10
+</pre></div>
+</div>
+</div>
+<div class="section" id="mqtt">
+<h2>MQTT<a class="headerlink" href="#mqtt" title="Permalink to this headline">¶</a></h2>
+<p>Data that is to be read over the MQTT network protocol must be referenced with a formatted string
+which contains the name of the MQTT topic and the VType that corresponds to the type of data published on the topic.</p>
+<p>All MQTT topics are obtained from the same MQTT broker URL, based on a preference setting that defaults to:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>org.phoebus.pv.mqtt/mqtt_broker=tcp://localhost:1883
+</pre></div>
+</div>
+<p>If the VType is omitted, ‘double’ is assumed. Examples:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>mqtt://some_topic
+mqtt://some_topic&lt;VDouble&gt;
+mqtt://some_topic&lt;VString&gt;
+mqtt://some/nested/topic
+</pre></div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Process Variables</a><ul>
+<li><a class="reference internal" href="#channel-access">Channel Access</a></li>
+<li><a class="reference internal" href="#pv-access">PV Access</a></li>
+<li><a class="reference internal" href="#simulated">Simulated</a></li>
+<li><a class="reference internal" href="#local">Local</a></li>
+<li><a class="reference internal" href="#formulas">Formulas</a></li>
+<li><a class="reference internal" href="#mqtt">MQTT</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../../../applications.html"
+                        title="previous chapter">Applications</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../../ui/doc/index.html"
+                        title="next chapter">Active Jobs</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/core/pv/doc/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../ui/doc/index.html" title="Active Jobs"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../../../applications.html" title="Applications"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Phoebus 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../applications.html" >Applications</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Process Variables</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Phoebus Developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

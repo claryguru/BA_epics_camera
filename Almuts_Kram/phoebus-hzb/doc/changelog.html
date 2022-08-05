@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Change Log &#8212; Phoebus 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Docker" href="docker.html" />
+    <link rel="prev" title="Preferences Listing" href="preference_properties.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="docker.html" title="Docker"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="preference_properties.html" title="Preferences Listing"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Phoebus 1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Change Log</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="change-log">
+<h1>Change Log<a class="headerlink" href="#change-log" title="Permalink to this headline">¶</a></h1>
+<p>A list of API changes, major features, and bug fixes included in each release.</p>
+<p>The list is compiled by phoebus developers to document the most important changes associated with each release. For minor bug fixes and patches please refer to github issues and PRs.</p>
+<div class="section" id="release-4-6-5-current-development-version">
+<h2>Release 4.6.5 (current development version)<a class="headerlink" href="#release-4-6-5-current-development-version" title="Permalink to this headline">¶</a></h2>
+<p>Date: TBD</p>
+<ul class="simple">
+<li><p>Avoid deadlock in script compilation and execution.</p></li>
+<li><p>Logbook modules restructured.</p></li>
+<li><p>Optimized display builder file save implementation.</p></li>
+<li><p>Display builder and scan editor undo stack maintained after file save.</p></li>
+<li><p>Logbook search cancellable.</p></li>
+<li><p>Fix for channel finder property editor.</p></li>
+<li><p>Scan infor parser performance improvement.</p></li>
+<li><p>PV race condition fix.</p></li>
+<li><p>Highlight overdrawn area of embedded display in edit mode.</p></li>
+</ul>
+</div>
+<div class="section" id="release-4-6-4">
+<h2>Release 4.6.4<a class="headerlink" href="#release-4-6-4" title="Permalink to this headline">¶</a></h2>
+<p>Date: Nov 16, 2020</p>
+<p><strong>NOTE:</strong> Bug in archiver settings handling causing the client to use default URL instead of the configured one.</p>
+<ul class="simple">
+<li><p>Alarm Datasource</p></li>
+<li><p>Simplification of the APIs for the <cite>ContextMenuService</cite>, <cite>SelectionService</cite>, and <cite>AdapterService</cite>.</p></li>
+<li><p>File browser context menu items to create new display or data browser plot.</p></li>
+<li><p>Array operations in formula functions.</p></li>
+<li><dl class="simple">
+<dt>Display Builder:</dt><dd><ul>
+<li><p>The symbol widget shows a semi-transparent rectangle with the color “INVALID” for disconnected PVs.</p></li>
+<li><p>The LED widget shows the label when the PV is disconnected and both the “On” and “Off” labels are the same.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Statistics tab in Databrowser.</p></li>
+<li><p>PV status column (value, invalid, disconnected etc) in PV List.</p></li>
+<li><p>Number of undo/redo actions in display editor configurable (org.csstudio.display.builder.editor/undo_stack_size)</p></li>
+<li><dl class="simple">
+<dt>Save &amp; Restore enhancements</dt><dd><ul>
+<li><p>Set point may be edited prior to restore.</p></li>
+<li><p>Display filter in snapshot view.</p></li>
+<li><p>Integration with Channel Finder.</p></li>
+<li><p>Support for additional data types.</p></li>
+<li><p>Extended server API to enable use of “file paths”.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="release-4-6-3">
+<h2>Release 4.6.3<a class="headerlink" href="#release-4-6-3" title="Permalink to this headline">¶</a></h2>
+<p>Date: May 25, 2020</p>
+<ul class="simple">
+<li><p>Save &amp; Restore application</p></li>
+</ul>
+</div>
+<div class="section" id="release-4-6-2">
+<h2>Release 4.6.2<a class="headerlink" href="#release-4-6-2" title="Permalink to this headline">¶</a></h2>
+<p>Date: Apr 27, 2020</p>
+</div>
+<div class="section" id="release-4-6-1">
+<h2>Release 4.6.1<a class="headerlink" href="#release-4-6-1" title="Permalink to this headline">¶</a></h2>
+<p>Date: Feb 4, 2020</p>
+</div>
+<div class="section" id="release-4-6-0">
+<h2>Release 4.6.0<a class="headerlink" href="#release-4-6-0" title="Permalink to this headline">¶</a></h2>
+<p>Date: Nov 28, 2019</p>
+<ul class="simple">
+<li><p>First release of phoebus framework</p></li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Change Log</a><ul>
+<li><a class="reference internal" href="#release-4-6-5-current-development-version">Release 4.6.5 (current development version)</a></li>
+<li><a class="reference internal" href="#release-4-6-4">Release 4.6.4</a></li>
+<li><a class="reference internal" href="#release-4-6-3">Release 4.6.3</a></li>
+<li><a class="reference internal" href="#release-4-6-2">Release 4.6.2</a></li>
+<li><a class="reference internal" href="#release-4-6-1">Release 4.6.1</a></li>
+<li><a class="reference internal" href="#release-4-6-0">Release 4.6.0</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="preference_properties.html"
+                        title="previous chapter">Preferences Listing</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="docker.html"
+                        title="next chapter">Docker</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/changelog.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="docker.html" title="Docker"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="preference_properties.html" title="Preferences Listing"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Phoebus 1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Change Log</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Phoebus Developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+
+\begin{figure}[H]
+	\begin{subfigure}{0.45\textwidth}
+		\includegraphics[width=\linewidth]{bilder/pinnhole.png}
+		\caption{abc.} \label{fig:abc}
+	\end{subfigure}		
+	\hspace*{\fill} 
+	\begin{subfigure}{0.45\textwidth}
+		\includegraphics[width=\linewidth]{bilder/Stoff_im_Gang_Tuch_vor_Handy.jpg}
+		\caption{abcabc.} \label{fig:YYY}
+	\end{subfigure}
+	\caption{abc} \label{fig:ZZZ}
+\end{figure} 

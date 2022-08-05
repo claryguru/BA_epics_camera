@@ -1,0 +1,465 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Save-and-restore service &#8212; Phoebus 1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Developer Information" href="../../../develop.html" />
+    <link rel="prev" title="Alarm Configuration Logging" href="../../alarm-config-logger/doc/index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../develop.html" title="Developer Information"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../../alarm-config-logger/doc/index.html" title="Alarm Configuration Logging"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Phoebus 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../services.html" accesskey="U">Services</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Save-and-restore service</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="save-and-restore-service">
+<h1>Save-and-restore service<a class="headerlink" href="#save-and-restore-service" title="Permalink to this headline">¶</a></h1>
+<p>The save-and-restore service implements the MASAR (MAchine SAve and Restore) service as a collection
+of REST endpoints. These can be used by clients to manage save sets (aka configurations) and
+snapshots, to compare snapshots and to restore settings from snapshots.</p>
+<p>The service is packaged as a self-contained Spring Boot jar file, i.e. there are no external dependencies besides the
+JVM and the database engine persisting the data. The service is verified for Postgresql and Mysql, but alternative
+engines can be added with moderate effort, see below for details.</p>
+<div class="section" id="running-the-service">
+<h2>Running the service<a class="headerlink" href="#running-the-service" title="Permalink to this headline">¶</a></h2>
+<p>To run the service, connection parameters for the database must be specified on the command line, or
+in existing property files (mysql.properties or postgresql.properties). Typical command line would be:</p>
+<p><code class="docutils literal notranslate"><span class="pre">java</span> <span class="pre">-Ddbengine=[postgresql|mysql]</span>
+<span class="pre">-Dspring.datasource.username=&lt;DB</span> <span class="pre">user</span> <span class="pre">name&gt;</span>
+<span class="pre">-Dspring.datasource.password=&lt;DB</span> <span class="pre">password&gt;</span>
+<span class="pre">-Dspring.datasource.jdbcUrl=&lt;DB</span> <span class="pre">engine</span> <span class="pre">URL&gt;</span>
+<span class="pre">-jar</span> <span class="pre">/path/to/service-save-and-restore-&lt;version&gt;.jar</span></code></p>
+<p>Where</p>
+<p><code class="docutils literal notranslate"><span class="pre">-Ddbengine</span></code> must be specified to either of the supported database engines. This parameter selects the properties
+file containing other settings (mysql.properties or postgresql.propties).</p>
+<p><code class="docutils literal notranslate"><span class="pre">-Dspring.datasource.username</span></code> specifies the database engine user name. Can be specified in the properties file.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-Dspring.datasource.password</span></code> specifies the database engine password. Can be specified in the properties file.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-Dspring.datasource.jdbcUrl</span></code> specifies the database URL required by the JDBC driver. Can be specified in the
+properties file.</p>
+</div>
+<div class="section" id="database-setup">
+<h2>Database setup<a class="headerlink" href="#database-setup" title="Permalink to this headline">¶</a></h2>
+<p>In order to deploy the service, one must create a database (schema) in the selected database engine matching the
+connection paramaters. When the service is started, Flyway scripts will create the required tables. New versions
+of the service that require changes to the database structure will also use Flyway scripts to perform necessary
+actions on the database.</p>
+</div>
+<div class="section" id="alternative-database-engines">
+<h2>Alternative database engines<a class="headerlink" href="#alternative-database-engines" title="Permalink to this headline">¶</a></h2>
+<p>Currently the save-and-restore service does not use an ORM layer (e.g. Hibernate). To support a database engine
+other than Postgresql or Mysql, use this checklist:</p>
+<ul class="simple">
+<li><p>Include the required JDBC driver.</p></li>
+<li><p>Create a &lt;my favourite DB engine&gt;.properties file containig the driver class name and paths to Flyway scripts.
+The name of the file must match the dbengine value on the command line.</p></li>
+<li><p>Create Flyway scripts for the database. Use existing as starting point.</p></li>
+<li><p>Configure command line paramaters.</p></li>
+<li><p>Verify.</p></li>
+</ul>
+<p>Note that the persistence layer contains hard coded SQL which may be invalid for other database engines. If
+there is a need to modify the SQL statement, please discuss this with the community as addition of ORM may be a
+better alternative.</p>
+</div>
+</div>
+<div class="section" id="rest-api-for-save-restore-service">
+<h1>REST API for Save Restore Service<a class="headerlink" href="#rest-api-for-save-restore-service" title="Permalink to this headline">¶</a></h1>
+<p><strong>Configuration:</strong></p>
+<p>A Save Restore configuration is a set of PV’s which are used to take a snapshot.
+The configuration can also consist of a few options parameters.</p>
+<ul class="simple">
+<li><p>readback pv associated with the pv</p></li>
+<li><p>flag to indicate if this pv should restored</p></li>
+</ul>
+<p>The configurations can be organized in the file system like directory structure.</p>
+<p><strong>Snapshot:</strong></p>
+<p>A Save set snapshot consists of a list ov pvs along with their values at a particular instant in time.</p>
+<div class="section" id="rest-services">
+<h2>REST Services<a class="headerlink" href="#rest-services" title="Permalink to this headline">¶</a></h2>
+<p>The service is implemented as a REST style web service, which – in this context – means:</p>
+<div class="line-block">
+<div class="line">•  The URL specifies the data element that the operation works upon.</div>
+<div class="line">•  The HTTP method specifies the type of operation.</div>
+</div>
+<div class="line-block">
+<div class="line">GET: retrieve or query, does not modify data</div>
+<div class="line">PUT: create or update, replacing the addressed element</div>
+<div class="line">POST: create or update subordinates of the addressed element</div>
+<div class="line">DELETE: delete the addressed element</div>
+</div>
+</div>
+<div class="section" id="configuration-management">
+<h2>Configuration Management<a class="headerlink" href="#configuration-management" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="get-the-root-node">
+<h3>Get the root node<a class="headerlink" href="#get-the-root-node" title="Permalink to this headline">¶</a></h3>
+<p><strong>…/root</strong></p>
+<p>Method: GET</p>
+<p>Return:
+The root node of the save restore configuration tree</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;uniqueId&quot;</span><span class="p">:</span> <span class="s2">&quot;25132263-9bee-41ef-8647-fb91632ab9a8&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Root folder&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="mi">1623700954000</span><span class="p">,</span>
+    <span class="nt">&quot;lastModified&quot;</span><span class="p">:</span> <span class="mi">1623701038000</span><span class="p">,</span>
+    <span class="nt">&quot;nodeType&quot;</span><span class="p">:</span> <span class="s2">&quot;FOLDER&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;userName&quot;</span><span class="p">:</span> <span class="s2">&quot;Developer&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;root&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-a-node">
+<h3>Get a node<a class="headerlink" href="#get-a-node" title="Permalink to this headline">¶</a></h3>
+<p><strong>…/node/{uniqueNodeId}</strong></p>
+<p>Method: GET</p>
+<p>Return:
+The details of the node with id <cite>{uniqueNodeId}</cite></p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="nt">&quot;uniqueId&quot;</span><span class="p">:</span> <span class="s2">&quot;ae9c3d41-5aa0-423d-a24e-fc68712b0894&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;CSX&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="mi">1623701056000</span><span class="p">,</span>
+    <span class="nt">&quot;lastModified&quot;</span><span class="p">:</span> <span class="mi">1623780701000</span><span class="p">,</span>
+    <span class="nt">&quot;nodeType&quot;</span><span class="p">:</span> <span class="s2">&quot;FOLDER&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;userName&quot;</span><span class="p">:</span> <span class="s2">&quot;kunal&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="nt">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-a-node-parent">
+<h3>Get a node parent<a class="headerlink" href="#get-a-node-parent" title="Permalink to this headline">¶</a></h3>
+<p><strong>…/node/{uniqueNodeId}/parent</strong></p>
+<p>Method: GET</p>
+<p>Return:
+The details of the <em>parent</em> node of the node with id <cite>{uniqueNodeId}</cite></p>
+</div>
+<div class="section" id="get-children">
+<h3>Get children<a class="headerlink" href="#get-children" title="Permalink to this headline">¶</a></h3>
+<p><strong>…/node/{uniqueNodeId}/children</strong></p>
+<p>Method: GET</p>
+<p>Return:
+The a list of all the children nodes of the node with id <cite>{uniqueNodeId}</cite></p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="nt">&quot;uniqueId&quot;</span><span class="p">:</span> <span class="s2">&quot;8cab9311-0c77-4307-a508-a33677ecc631&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Camera&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="mi">1623701073000</span><span class="p">,</span>
+        <span class="nt">&quot;lastModified&quot;</span><span class="p">:</span> <span class="mi">1625836981000</span><span class="p">,</span>
+        <span class="nt">&quot;nodeType&quot;</span><span class="p">:</span> <span class="s2">&quot;CONFIGURATION&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;userName&quot;</span><span class="p">:</span> <span class="s2">&quot;kunal&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="nt">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+        <span class="nt">&quot;uniqueId&quot;</span><span class="p">:</span> <span class="s2">&quot;3aa5baa3-8386-4a74-84bb-5fdd9afccc7f&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ROI&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="mi">1623780701000</span><span class="p">,</span>
+        <span class="nt">&quot;lastModified&quot;</span><span class="p">:</span> <span class="mi">1623780701000</span><span class="p">,</span>
+        <span class="nt">&quot;nodeType&quot;</span><span class="p">:</span> <span class="s2">&quot;CONFIGURATION&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;userName&quot;</span><span class="p">:</span> <span class="s2">&quot;kunal&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="nt">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-a-new-node">
+<h3>Create a new node<a class="headerlink" href="#create-a-new-node" title="Permalink to this headline">¶</a></h3>
+<p><strong>…/node/{parentsUniqueId}</strong></p>
+<p>Method: PUT</p>
+<p>Body:</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;New_Node_Camera&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;nodeType&quot;</span><span class="p">:</span> <span class="s2">&quot;CONFIGURATION&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;userName&quot;</span><span class="p">:</span> <span class="s2">&quot;kunal&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="nt">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>nodeType: “CONFIGURATION” or “FOLDER”</p>
+<p>The nodeType can be used to specify if we want to create a new folder or a new save set configuration</p>
+<p>Return:
+If the node was successfully created you will a 200 response with the details of the newly created node</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span>
+    <span class="nt">&quot;uniqueId&quot;</span><span class="p">:</span> <span class="s2">&quot;c4302cfe-60e2-46ec-bf2b-dcd13c0ef4c0&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;New_Node_Camera&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;created&quot;</span><span class="p">:</span> <span class="mi">1625837873000</span><span class="p">,</span>
+    <span class="nt">&quot;lastModified&quot;</span><span class="p">:</span> <span class="mi">1625837873000</span><span class="p">,</span>
+    <span class="nt">&quot;nodeType&quot;</span><span class="p">:</span> <span class="s2">&quot;CONFIGURATION&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;userName&quot;</span><span class="p">:</span> <span class="s2">&quot;kunal&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="nt">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-or-update-a-configuration">
+<h3>Create or Update a configuration<a class="headerlink" href="#create-or-update-a-configuration" title="Permalink to this headline">¶</a></h3>
+<p><strong>…/config/{uniqueNodeId}/update</strong></p>
+<p>Method: POST</p>
+<p>Body:</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;config&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;uniqueId&quot;</span><span class="p">:</span> <span class="s2">&quot;8cab9311-0c77-4307-a508-a33677ecc631&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;userName&quot;</span><span class="p">:</span> <span class="s2">&quot;kunal&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;configPvList&quot;</span> <span class="p">:</span>
+    <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;pvName&quot;</span><span class="p">:</span> <span class="s2">&quot;13SIM1:{SimDetector-Cam:1}cam1:BinX&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;pvName&quot;</span><span class="p">:</span> <span class="s2">&quot;13SIM1:{SimDetector-Cam:1}cam1:BinY&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;pvName&quot;</span><span class="p">:</span> <span class="s2">&quot;13SIM1:{SimDetector-Cam:2}cam2:BinX&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;readbackPvName&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;readOnly&quot;</span><span class="p">:</span> <span class="kc">false</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;pvName&quot;</span><span class="p">:</span> <span class="s2">&quot;13SIM1:{SimDetector-Cam:2}cam2:BinY&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;readbackPvName&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;readOnly&quot;</span><span class="p">:</span> <span class="kc">false</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="snapshot-management">
+<h2>Snapshot Management<a class="headerlink" href="#snapshot-management" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="retrieve-all-snapshots">
+<h3>Retrieve all snapshots<a class="headerlink" href="#retrieve-all-snapshots" title="Permalink to this headline">¶</a></h3>
+<p><strong>…/snapshots</strong></p>
+<p>Method: GET</p>
+<p>Retrieve all Snapshots id’s</p>
+<p>Return:
+A list of all the snapshot id’s</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span>[
+    {
+    &quot;id&quot;: 21,
+    &quot;uniqueId&quot;: &quot;c4302cfe-60e2-46ec-bf2b-dcd13c0ef4c0&quot;,
+    &quot;name&quot;: &quot;New_Node_Camera&quot;,
+    &quot;created&quot;: 1625837873000,
+    &quot;nodeType&quot;: &quot;SNAPSHOT&quot;,
+    ...
+    },
+    {
+    &quot;id&quot;: 22,
+    &quot;uniqueId&quot;: &quot;c4302cfe-60e2-46ec-bf2b-dad64db1f06d&quot;,
+    &quot;name&quot;: &quot;New_Node_Camera&quot;,
+    &quot;created&quot;: 1625837874000,
+    &quot;nodeType&quot;: &quot;SNAPSHOT&quot;,
+    ...
+    }
+]
+</pre></div>
+</div>
+</div>
+<div class="section" id="retrieve-all-snapshots-for-a-configuration">
+<h3>Retrieve all snapshots for a configuration<a class="headerlink" href="#retrieve-all-snapshots-for-a-configuration" title="Permalink to this headline">¶</a></h3>
+<p><a href="#id1"><span class="problematic" id="id2">**</span></a>…/snapshot/{uniqueNodeId}</p>
+<p>Retrieve a Snapshot without all the data identified by the <cite>{uniqueNodeId}</cite></p>
+<p>Return:
+A snapshot with all the metadata</p>
+</div>
+<div class="section" id="retrieve-snapshots-data">
+<h3>Retrieve snapshots data<a class="headerlink" href="#retrieve-snapshots-data" title="Permalink to this headline">¶</a></h3>
+<p><a href="#id3"><span class="problematic" id="id4">**</span></a>…/snapshot/{uniqueNodeId}/items</p>
+<p>Method: GET</p>
+<p>Retrieve all Snapshots associated with a particular configuration identified by <cite>{uniqueNodeId}</cite></p>
+<p>Return:
+A snapshot with all the stored data</p>
+<div class="highlight-JSON notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;snapshotId&quot;</span><span class="p">:</span> <span class="s2">&quot;4099&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;configPv&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">33</span><span class="p">,</span>
+      <span class="nt">&quot;pvName&quot;</span><span class="p">:</span> <span class="s2">&quot;ISrc-010:Vac-VVMC-01100:FlwSPS&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;readbackPvName&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+      <span class="nt">&quot;readOnly&quot;</span><span class="p">:</span> <span class="kc">false</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;VDouble&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="mi">1</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mf">3.5</span><span class="p">,</span>
+      <span class="nt">&quot;alarm&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;NONE&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;NONE&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;NONE&quot;</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;time&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;unixSec&quot;</span><span class="p">:</span> <span class="mi">1635087714</span><span class="p">,</span>
+        <span class="nt">&quot;nanoSec&quot;</span><span class="p">:</span> <span class="mi">327966491</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;display&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;readbackValue&quot;</span><span class="p">:</span> <span class="kc">null</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;snapshotId&quot;</span><span class="p">:</span> <span class="mi">4099</span><span class="p">,</span>
+    <span class="nt">&quot;configPv&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">4076</span><span class="p">,</span>
+      <span class="nt">&quot;pvName&quot;</span><span class="p">:</span> <span class="s2">&quot;LEBT-CS:PwrC-PSRep-01:Vol-S&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;readbackPvName&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+      <span class="nt">&quot;readOnly&quot;</span><span class="p">:</span> <span class="kc">false</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;VDouble&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="mi">1</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;value&quot;</span><span class="p">:</span> <span class="mf">3.5</span><span class="p">,</span>
+      <span class="nt">&quot;alarm&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;NONE&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;NONE&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;NONE&quot;</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;time&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;unixSec&quot;</span><span class="p">:</span> <span class="mi">1634899034</span><span class="p">,</span>
+        <span class="nt">&quot;nanoSec&quot;</span><span class="p">:</span> <span class="mi">639928152</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;display&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;readbackValue&quot;</span><span class="p">:</span> <span class="kc">null</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Save-and-restore service</a><ul>
+<li><a class="reference internal" href="#running-the-service">Running the service</a></li>
+<li><a class="reference internal" href="#database-setup">Database setup</a></li>
+<li><a class="reference internal" href="#alternative-database-engines">Alternative database engines</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#rest-api-for-save-restore-service">REST API for Save Restore Service</a><ul>
+<li><a class="reference internal" href="#rest-services">REST Services</a></li>
+<li><a class="reference internal" href="#configuration-management">Configuration Management</a><ul>
+<li><a class="reference internal" href="#get-the-root-node">Get the root node</a></li>
+<li><a class="reference internal" href="#get-a-node">Get a node</a></li>
+<li><a class="reference internal" href="#get-a-node-parent">Get a node parent</a></li>
+<li><a class="reference internal" href="#get-children">Get children</a></li>
+<li><a class="reference internal" href="#create-a-new-node">Create a new node</a></li>
+<li><a class="reference internal" href="#create-or-update-a-configuration">Create or Update a configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#snapshot-management">Snapshot Management</a><ul>
+<li><a class="reference internal" href="#retrieve-all-snapshots">Retrieve all snapshots</a></li>
+<li><a class="reference internal" href="#retrieve-all-snapshots-for-a-configuration">Retrieve all snapshots for a configuration</a></li>
+<li><a class="reference internal" href="#retrieve-snapshots-data">Retrieve snapshots data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../../alarm-config-logger/doc/index.html"
+                        title="previous chapter">Alarm Configuration Logging</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../../../develop.html"
+                        title="next chapter">Developer Information</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/services/save-and-restore/doc/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../develop.html" title="Developer Information"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../../alarm-config-logger/doc/index.html" title="Alarm Configuration Logging"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">Phoebus 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../services.html" >Services</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Save-and-restore service</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Phoebus Developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

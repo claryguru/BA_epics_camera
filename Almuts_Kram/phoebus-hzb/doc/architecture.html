@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Architecture &#8212; Phoebus 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Locations" href="locations.html" />
+    <link rel="prev" title="Phoebus Product" href="phoebus_product.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="locations.html" title="Locations"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="phoebus_product.html" title="Phoebus Product"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Phoebus 1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Architecture</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="architecture">
+<h1>Architecture<a class="headerlink" href="#architecture" title="Permalink to this headline">¶</a></h1>
+<div class="figure align-default">
+<img alt="_images/architecture.png" src="_images/architecture.png" />
+</div>
+<p>The fundamental phoebus architecture consists of <strong>core</strong> modules,
+user-interface related <strong>core-ui</strong> modules, and <strong>app</strong> modules.
+The core modules provide the infrastructure, while app modules
+implement specific application functionality.
+Everything is based on Java version 9 or higher, using Java FX as
+a graphics library.</p>
+<p>A Phoebus product may contain just one application,
+for example only one of Probe, PV Tree, PV Table, Display Builder Runtime,
+so you end up with several Phoebus products that each perform one function.
+Alternatively, you can assemble a Phoebus product that
+contains all these applications. This allows integration between the applications,
+for example via context menus that start other PV-related applications based
+on the current selection.</p>
+<div class="section" id="core-modules">
+<h2>Core Modules<a class="headerlink" href="#core-modules" title="Permalink to this headline">¶</a></h2>
+<dl>
+<dt>core-framework:</dt><dd><p>Fundamentals that many applications use, for example preferences, persistence,
+jobs, macros, localization, autocompletion.</p>
+<p>Defines the <code class="docutils literal notranslate"><span class="pre">AppDescriptor</span></code> and <code class="docutils literal notranslate"><span class="pre">AppResourceDescriptor</span></code> Java Service Provider Interfaces (SPI)
+which are used to locate applications.
+Each application feature identifies itself by implementing an application description
+that describes to the Phoebus framework what the name of
+the application is, which types of resources (e.g. data files) it might accept,
+and most importantly how to start one or more instances
+of the application.</p>
+<p>To create an <code class="docutils literal notranslate"><span class="pre">AppInstance</span></code>, i.e. an application instance, the framework invokes
+the <code class="docutils literal notranslate"><span class="pre">create()</span></code> method of the application descriptor.
+This will typically result in a new application instance, i.e. a new tab in the UI.
+Certain applications like the job viewer will create a singleton application instance.</p>
+<p>On shutdown, the state of all windows and tabs is persisted
+in a memento file, and each <code class="docutils literal notranslate"><span class="pre">AppDescriptor</span></code> can also
+persist its own state.
+On startup, each window and tab is restored,
+the applications are restarted, and each application
+can restore its specific state from the memento.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">JobManager</span></code> API allows submitting jobs based on a <code class="docutils literal notranslate"><span class="pre">JobRunnable</span></code>
+that supports progress reporting and cancellation.</p>
+</dd>
+<dt>core-pv:</dt><dd><p>API for access to life data from Process Variables.</p>
+</dd>
+<dt>core-logbook:</dt><dd><p>API for accessing a logbook, with SPI for site-specific implementations.</p>
+</dd>
+<dt>core-email:</dt><dd><p>API for creating emails.</p>
+</dd>
+<dt>core-security:</dt><dd><p>API for authorization and secure storage.</p>
+</dd>
+<dt>core-ui:</dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">docking</span></code> package supports a window environment similar to a web browser.
+Each window can have multiple tabs.
+Users can move tabs between existing windows,
+or detach them into newly created windows.</p>
+<p>The top-level Java FX <code class="docutils literal notranslate"><span class="pre">Node</span></code> for each application’s
+UI scene graph is basically a <code class="docutils literal notranslate"><span class="pre">Tab</span></code>,
+wrapped in a Phoebus <code class="docutils literal notranslate"><span class="pre">DockItem</span></code> that tracks the
+<code class="docutils literal notranslate"><span class="pre">AppInstance</span></code> to allow it to be saved and restored.</p>
+<p>The toolbar, main menu and context menus accept
+SPI-based contributions.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">selection</span></code> package allows publishing and monitoring a selection of
+for example PVs.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">undo</span></code> package simplifies the implementation of undo/redo
+functionality.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="app-modules">
+<h2>App Modules<a class="headerlink" href="#app-modules" title="Permalink to this headline">¶</a></h2>
+<p>Each app module implements a certain application feature, for example
+Probe, PV Tree, Display Builder.
+While application modules depend on one or more core modules, there should
+be few if no inter-application dependencies, allowing a product to contain
+only the desired applications.</p>
+</div>
+<div class="section" id="products">
+<h2>Products<a class="headerlink" href="#products" title="Permalink to this headline">¶</a></h2>
+<p>Each core and application module is built into a <code class="docutils literal notranslate"><span class="pre">jar</span></code> file.
+A product contains a <code class="docutils literal notranslate"><span class="pre">lib/</span></code> directory with the desired modules.
+When invoking the <code class="docutils literal notranslate"><span class="pre">Launcher</span></code>, it locates the available applications,
+menu and toolbar entries via SPI.
+Adding or removing Probe, PV Tree, .. from a product
+is done by simply adding or removing the respective jar file.</p>
+</div>
+<div class="section" id="services">
+<h2>Services<a class="headerlink" href="#services" title="Permalink to this headline">¶</a></h2>
+<p>Similar to a product, a service is a runnable tool, but typically
+for a non-UI functionality like a scan server, archive engine,
+alarm handler or logger.</p>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Architecture</a><ul>
+<li><a class="reference internal" href="#core-modules">Core Modules</a></li>
+<li><a class="reference internal" href="#app-modules">App Modules</a></li>
+<li><a class="reference internal" href="#products">Products</a></li>
+<li><a class="reference internal" href="#services">Services</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="phoebus_product.html"
+                        title="previous chapter">Phoebus Product</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="locations.html"
+                        title="next chapter">Locations</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/architecture.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="locations.html" title="Locations"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="phoebus_product.html" title="Phoebus Product"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Phoebus 1.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Architecture</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Phoebus Developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

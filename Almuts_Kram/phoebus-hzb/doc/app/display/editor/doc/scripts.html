@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scripts &#8212; Phoebus 1.0 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Display Navigation" href="../../navigation/doc/index.html" />
+    <link rel="prev" title="Rules" href="rules.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../navigation/doc/index.html" title="Display Navigation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="rules.html" title="Rules"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Phoebus 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../applications.html" >Applications</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Display Builder</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="dynamic.html" accesskey="U">Dynamic</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Scripts</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="scripts">
+<h1>Scripts<a class="headerlink" href="#scripts" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><p><strong>DISCLAIMER</strong></p>
+<p>Scripting in CS Studio should be used <strong>only</strong> if a particular task cannot be achieved with the built-in features of
+the various widgets, or with formula functions or rules. In particular, CS Studio <strong>should not</strong> be used as a
+script execution platform for data processing or complex business logic. It should also be noted that each script
+referenced by the widgets of an OPI is compiled when the OPI is loaded, which adds to the overall load time,
+and which may degrade the initial responsiveness of the UI.</p>
+<p>Supported script language versions are Python 2.7 and JavaScript 1.7 (ECMAScript support is <strong>very</strong> limited).</p>
+</div></blockquote>
+<p>For complex dynamic behaviors which cannot be achieved by formula functions or rules, you can attach one or more JavaScript or Python scripts
+to a widget or display. Both script types accept PVs as inputs. Script execution is triggered
+by the value change event of input trigger PVs, i.e. a change of PV value or timestamp.
+In a script the value, timestamp or severity of the input PVs are accessible, see <a class="reference internal" href="access_pv_in_script.html#access-pv-in-script"><span class="std std-ref">Access PV in Script</span></a>. The widget and display objects
+are also accessible in script, see <a class="reference internal" href="access_widget.html#access-widget"><span class="std std-ref">Access Widget in Script</span></a> .</p>
+<p>Both JavaScript and Python script may call Java code by importing corresponding packages. For example:</p>
+<p><strong>JavaScript Example:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">importPackage</span><span class="p">(</span><span class="nx">Packages</span><span class="p">.</span><span class="nx">org</span><span class="p">.</span><span class="nx">eclipse</span><span class="p">.</span><span class="nx">jface</span><span class="p">.</span><span class="nx">dialogs</span><span class="p">);</span>
+<span class="nx">MessageDialog</span><span class="p">.</span><span class="nx">openInformation</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;Dialog from JavaScript&quot;</span><span class="p">,</span> <span class="s2">&quot;This is a dialog opened from JavaScript&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Python script Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">org.eclipse.jface.dialogs</span> <span class="kn">import</span> <span class="n">MessageDialog</span>
+<span class="n">MessageDialog</span><span class="o">.</span><span class="n">openInformation</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Dialog from Python&quot;</span><span class="p">,</span> <span class="s2">&quot;This is a dialog opened from Python&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As seen above, calling Java code is very similar between JavaScript and Python. Most script examples in this help document are in JavaScript,
+but it should be easy for you to translate them to Python. For example, here are two code snippets written in JavaScript and Python respectively.
+The functionality in the scripts is identical.</p>
+<p><strong>JavaScript Example:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">importPackage</span><span class="p">(</span><span class="nx">Packages</span><span class="p">.</span><span class="nx">org</span><span class="p">.</span><span class="nx">csstudio</span><span class="p">.</span><span class="nx">opibuilder</span><span class="p">.</span><span class="nx">scriptUtil</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">PVUtil</span><span class="p">.</span><span class="nx">getDouble</span><span class="p">(</span><span class="nx">pvs</span><span class="p">[</span><span class="mf">0</span><span class="p">]);</span>
+<span class="kd">var</span> <span class="nx">RED</span> <span class="o">=</span> <span class="nx">ColorFontUtil</span><span class="p">.</span><span class="nx">RED</span><span class="p">;</span>
+<span class="nx">widget</span><span class="p">.</span><span class="nx">setPropertyValue</span><span class="p">(</span><span class="s2">&quot;start_angle&quot;</span><span class="p">,</span> <span class="nx">value</span><span class="p">);</span>
+<span class="nx">widget</span><span class="p">.</span><span class="nx">setPropertyValue</span><span class="p">(</span><span class="s2">&quot;foreground_color&quot;</span><span class="p">,</span> <span class="nx">RED</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Python script Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">org.csstudio.opibuilder.scriptUtil</span> <span class="kn">import</span> <span class="n">PVUtil</span>
+<span class="kn">from</span> <span class="nn">org.csstudio.opibuilder.scriptUtil</span> <span class="kn">import</span> <span class="n">ColorFontUtil</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">PVUtil</span><span class="o">.</span><span class="n">getDouble</span><span class="p">(</span><span class="n">pvs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">RED</span> <span class="o">=</span> <span class="n">ColorFontUtil</span><span class="o">.</span><span class="n">RED</span>
+<span class="n">widget</span><span class="o">.</span><span class="n">setPropertyValue</span><span class="p">(</span><span class="s2">&quot;start_angle&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+<span class="n">widget</span><span class="o">.</span><span class="n">setPropertyValue</span><span class="p">(</span><span class="s2">&quot;foreground_color&quot;</span><span class="p">,</span> <span class="n">RED</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Steps to attach scripts to a widget:</strong></p>
+<ol class="arabic simple">
+<li><p>In the widget properties pane, click the button to launch the script editor dialog:</p></li>
+</ol>
+<img alt="../../../../_images/RulesButton.png" src="../../../../_images/RulesButton.png" />
+<p>2. In script editor dialog you can add one or multiple scripts. A script may be either a script file on the file
+system, or a code block embedded into the OPI file.</p>
+<img alt="../../../../_images/AddScript.png" src="../../../../_images/AddScript.png" />
+<ol class="arabic simple" start="3">
+<li><p>If an embedded script is selected, the editor will create a small script template and show it in an editor window.</p></li>
+</ol>
+<img alt="../../../../_images/ScriptTemplate.png" src="../../../../_images/ScriptTemplate.png" />
+<p>4. For each script you can specify one or multiple input PVs.
+PVs that trigger script execution should be checked in Trigger column. There must be at least one trigger PV for each script.</p>
+<img alt="../../../../_images/ScriptEditor.png" src="../../../../_images/ScriptEditor.png" />
+<div class="section" id="internals">
+<h2>Internals<a class="headerlink" href="#internals" title="Permalink to this headline">¶</a></h2>
+<a href="html/generated/index.html">Java Doc for scripts</a></div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Scripts</a><ul>
+<li><a class="reference internal" href="#internals">Internals</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="rules.html"
+                        title="previous chapter">Rules</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../../navigation/doc/index.html"
+                        title="next chapter">Display Navigation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../../_sources/app/display/editor/doc/scripts.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../navigation/doc/index.html" title="Display Navigation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="rules.html" title="Rules"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Phoebus 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../applications.html" >Applications</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Display Builder</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="dynamic.html" >Dynamic</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Scripts</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Phoebus Developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

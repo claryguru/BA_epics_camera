@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Macros &#8212; Phoebus 1.0 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Dynamic" href="dynamic.html" />
+    <link rel="prev" title="Datasources" href="datasource_connections.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="dynamic.html" title="Dynamic"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="datasource_connections.html" title="Datasources"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Phoebus 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../applications.html" >Applications</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">Display Builder</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Macros</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="macros">
+<h1>Macros<a class="headerlink" href="#macros" title="Permalink to this headline">¶</a></h1>
+<p>Macros can be used for string replacement in a variety of use cases. A common use case is to define macros as substrings of PV names used
+in displays controlling multiple instances of the same type of hardware.</p>
+<p>The macro format can be either <strong>$(macro_name)</strong> or <strong>${macro_name}</strong>. Letters and numbers can be used for macro names,
+but a macro name must must start with a letter. Macro names are case sensitive.</p>
+<p>There are a number of different macro types:</p>
+<div class="section" id="symbol-macros">
+<h2>Symbol Macros<a class="headerlink" href="#symbol-macros" title="Permalink to this headline">¶</a></h2>
+<p>Symbol Macros can be defined in several places.</p>
+<ol class="arabic simple">
+<li><p>On the command line when launching a display using the -resource option:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>java -jar /path/to/application.jar -resource file:///path/to/display.bob?MyMacroValue=Some%20Value
+</pre></div>
+</div>
+<p>Note that macro values must be URL encoded, e.g. space character is encoded as %20.</p>
+<ol class="arabic simple" start="2">
+<li><p>In a display file using the macro property editor:</p></li>
+</ol>
+<img alt="../../../../_images/top_level_macro.png" src="../../../../_images/top_level_macro.png" />
+<img alt="../../../../_images/macro_editor.png" src="../../../../_images/macro_editor.png" />
+<ol class="arabic simple" start="3">
+<li><p>A macro property editor is also available for container widgets like for instance Embedded Display, Group or Navigation Tabs.</p></li>
+</ol>
+<p>While macros will in general propagate (e.g. from command line to Embedded Display), overrides must be considered if
+the same macro - identified by name - is defined on multiple levels:</p>
+<ol class="arabic simple">
+<li><p>Macro defined in a display file will override macro defined on command line.</p></li>
+<li><p>Macro defined for a container widget will override macro defined in the containing display file.</p></li>
+</ol>
+</div>
+<div class="section" id="widget-property-value-macro">
+<h2>Widget Property Value Macro<a class="headerlink" href="#widget-property-value-macro" title="Permalink to this headline">¶</a></h2>
+<p>This allows you to access the value of a property of the widget in run mode. In this case, the macro_name is the property id of the widget property.
+For example, $(pv_name), $(pv_value), $(foreground_color).</p>
+<p>A good example of Widget Property Value Macro is the tooltip: A tooltip of “$(pv_name)$(pv_value)” will display the PV Name and its value in run mode.</p>
+<img alt="../../../../_images/widget_property_macro.png" src="../../../../_images/widget_property_macro.png" />
+</div>
+<div class="section" id="system-macros">
+<h2>System Macros<a class="headerlink" href="#system-macros" title="Permalink to this headline">¶</a></h2>
+<p>The following macros are predefined, and can be overridden by Symbol Macros:</p>
+<ul class="simple">
+<li><p>$(DID): The unique ID for each display. Even if there are multiple displays refering to the same physical OPI file, each display still has an unique ID. This macro is useful for avoiding name conflict. For example, if we add a prefix of $(DID)_ to a local PV name, we can easily guarantee the PV name is unique to this display.</p></li>
+<li><p>$(DNAME): The name of the display.</p></li>
+</ul>
+</div>
+<div class="section" id="environment-variables">
+<h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>A macro like $(PATH) will - unless explicitly overridden - expand to the value of the process owner’s environment
+variable PATH. To see the list of available environment variables, select menu option <em>Window-&gt;About</em> and then
+expand <em>Show Details</em> and select <em>Environment Variables</em> tab:</p>
+<img alt="../../../../_images/environment_variables.png" src="../../../../_images/environment_variables.png" />
+</div>
+<div class="section" id="system-properties">
+<h2>System Properties<a class="headerlink" href="#system-properties" title="Permalink to this headline">¶</a></h2>
+<p>Java system properties can be accessed as macros, e.g. $(os.version). The list of supported Java system
+properties may vary between Java versions. To see the list of available system properties, both those defined by
+the Java runtime and those defined by the application, select menu option <em>Window-&gt;About</em> and then
+expand <em>Show Details</em> and select <em>System Properties</em> tab:</p>
+<img alt="../../../../_images/system_properties.png" src="../../../../_images/system_properties.png" />
+</div>
+<div class="section" id="default-values">
+<h2>Default Values<a class="headerlink" href="#default-values" title="Permalink to this headline">¶</a></h2>
+<p>When using a macro as in <strong>$(macro_name)</strong> and the value for <strong>macro_name</strong> is not defined,
+the result will be an empty string.
+The syntax <strong>$(macro_name=default_value)</strong> can be used to yield the text <strong>default_value</strong>
+unless <strong>macro_name</strong> has a defined value.</p>
+<p>One use case for default macro values are displays that allow standalone tests.
+When a display with <strong>$(pv=sim://sine)</strong> is executed with a value for the <strong>pv</strong> macro,
+that value will be used, but the display can also be opened “standalone” and will then use
+the default value of <strong>sim://sine</strong>.</p>
+</div>
+<div class="section" id="general-remark">
+<h2>General Remark<a class="headerlink" href="#general-remark" title="Permalink to this headline">¶</a></h2>
+<p>A macro is a string substitution mechanism, nothing else. In particular, a macro contains no type information. This
+has implications if macros are referenced in rules. For instance, if compared to a string value, the
+macro must be quoted. On the other hand, if compared to a numerical value, the macro must expand to a number and
+be specified without quotes.</p>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Macros</a><ul>
+<li><a class="reference internal" href="#symbol-macros">Symbol Macros</a></li>
+<li><a class="reference internal" href="#widget-property-value-macro">Widget Property Value Macro</a></li>
+<li><a class="reference internal" href="#system-macros">System Macros</a></li>
+<li><a class="reference internal" href="#environment-variables">Environment Variables</a></li>
+<li><a class="reference internal" href="#system-properties">System Properties</a></li>
+<li><a class="reference internal" href="#default-values">Default Values</a></li>
+<li><a class="reference internal" href="#general-remark">General Remark</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="datasource_connections.html"
+                        title="previous chapter">Datasources</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dynamic.html"
+                        title="next chapter">Dynamic</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../../_sources/app/display/editor/doc/macros.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="dynamic.html" title="Dynamic"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="datasource_connections.html" title="Datasources"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">Phoebus 1.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../../applications.html" >Applications</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >Display Builder</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Macros</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Phoebus Developers.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>
