@@ -8,12 +8,12 @@
         "control_params_values": {
             "roi_x_start": 500,
             "roi_y_start": 600,
-            "factor": 0.5,
-            "median_flt": false,
-            "sampled": 0,
+            "factor": 0.1,
+            "median_flt": true,
+            "sampled": 2,
             "roi_x_stop": 1250,
             "roi_y_stop": 1000,
-            "threshold": 1400
+            "threshold": 708
         }
     },
     "epics": {

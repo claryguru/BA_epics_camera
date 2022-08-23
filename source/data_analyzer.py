@@ -503,7 +503,13 @@ class GaussianFit:
         ax.scatter(self.x_values, self.y_values, self.z_values_in, c=self.z_values_in, cmap='viridis', linewidth=0.5)
 
         # fitted new data
-        print(self.result)
+        print(self.result[0])
+        print(self.result[1])
+        print(self.result[2])
+        print(self.result[3])
+        print(self.result[4])
+        print(self.result[5])
+        print(self.result[6])
         z_values_new = self.gaussian_model((self.x_values, self.y_values), *(self.result))
         ax = fig.add_subplot(1, 2, 2, projection='3d')
         ax.set_title("data fitted")
@@ -519,7 +525,7 @@ class DataAnalyzer:
     '''
 
 ### --- Init
-    def __init__(self, cam_dat_eps, init_dict=None, label=False):
+    def __init__(self, cam_dat_eps, init_dict=None, label=True):
         self.cam_dat_eps = cam_dat_eps
 
         try:
@@ -676,11 +682,11 @@ class DataAnalyzer:
     def show(self):
         print("image")
         self.image.show()
-        print("roi")
+        print("\nroi")
         self.roi.show()
-        print("fit_area")
+        print("\nfit_area")
         self.fit_area.show()
-        print("model")
+        print("\ngaussian fit")
         self.g_fit.show()
 
 
@@ -702,7 +708,7 @@ if __name__ == '__main__':
                     'roi_y_start': 600,
                     'roi_y_stop': 900,
                     'factor': 0.1,
-                    'threshold': 1400,
+                    'threshold': 708,
                     'median_flt': True,
                     'sampled': 2}}
 
@@ -713,8 +719,9 @@ if __name__ == '__main__':
             self.data_analyzer = DataAnalyzer(self, example_init)
             #self.data_analyzer.show()
 
-            for i in range(0, 2):
-                self.data_analyzer.analyze()
+            #testing what happens if no image is loaded yet
+            #for i in range(0, 2):
+                #self.data_analyzer.analyze()
 
             self.ia.aquire_sync()
             self.data_analyzer.analyze()
